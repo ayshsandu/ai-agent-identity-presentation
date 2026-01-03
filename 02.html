@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Agent Identity</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #2a2a2a;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .slide-container {
+            width: 100%;
+            max-width: 1400px;
+            padding: 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        /* Title Section */
+        .title-section {
+            margin-bottom: 80px;
+            opacity: 0;
+            transform: translateY(-30px);
+            transition: all 0.8s ease-out;
+            width: 100%;
+        }
+
+        .title-section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .title-section h1 {
+            font-size: 56px;
+            font-weight: 700;
+            color: #ffffff;
+            margin: 0;
+            padding-left: 20px;
+            border-left: 8px solid #ff8c00;
+            line-height: 1.2;
+        }
+
+        .title-orange {
+            color: #ff8c00;
+        }
+
+        .title-white {
+            color: #ffffff;
+        }
+
+        /* Author Section */
+        .author-section {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            opacity: 0;
+            transform: translateX(-30px);
+            transition: all 0.8s ease-out 0.3s;
+        }
+
+        .author-section.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .author-photo {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background-color: #ff8c00;
+            overflow: hidden;
+            flex-shrink: 0;
+            border: 5px solid #ff8c00;
+        }
+
+        .author-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .author-info {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .author-name {
+            background-color: #ff8c00;
+            color: #ffffff;
+            padding: 12px 25px;
+            font-size: 36px;
+            font-weight: 700;
+            display: inline-block;
+            width: fit-content;
+        }
+
+        .author-title {
+            background-color: #e8e8e8;
+            color: #000000;
+            padding: 12px 25px;
+            font-size: 28px;
+            font-weight: 400;
+            display: inline-block;
+            width: fit-content;
+        }
+
+        /* Navigation Instructions */
+        .nav-instructions {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 12px 24px;
+            border-radius: 25px;
+            color: #fff;
+            font-size: 14px;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+        }
+
+        .nav-instructions:hover {
+            opacity: 1;
+        }
+
+        /* Step Counter */
+        .step-counter {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 10px 20px;
+            border-radius: 20px;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="slide-container">
+        <!-- Title -->
+        <div class="title-section" id="title">
+            <h1>
+                <span class="title-orange">AI Agent Identity:</span>
+                <span class="title-white">Foundation<br>for Secure Enterprise AI</span>
+            </h1>
+        </div>
+
+        <!-- Author Info -->
+        <div class="author-section" id="author">
+            <div class="author-photo">
+                <!-- Placeholder for photo - replace with actual image -->
+                <img src="https://avatars.githubusercontent.com/u/5061791?v=4" width='150' height='150'
+                    alt="Ayesha Dissanayaka">
+            </div>
+            <div class="author-info">
+                <div class="author-name">Ayesha Dissanayaka</div>
+                <div class="author-title">Associate Director / Architect Identity and Access Management <br>WSO2</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="nav-instructions">
+        Press → (Next) or ← (Previous) to navigate
+    </div>
+
+    <!-- Step Counter -->
+    <div class="step-counter" id="stepCounter">
+        Step <span id="currentStep">0</span> / <span id="totalSteps">2</span>
+    </div>
+
+    <script>
+        let currentStep = 0;
+        const totalSteps = 2;
+
+        const steps = [
+            () => showTitle(),    // 0: Title appears
+            () => showAuthor()    // 1: Author info appears
+        ];
+
+        function showTitle() {
+            document.getElementById('title').classList.add('visible');
+        }
+
+        function hideTitle() {
+            document.getElementById('title').classList.remove('visible');
+        }
+
+        function showAuthor() {
+            document.getElementById('author').classList.add('visible');
+        }
+
+        function hideAuthor() {
+            document.getElementById('author').classList.remove('visible');
+        }
+
+        function updateStepCounter() {
+            document.getElementById('currentStep').textContent = currentStep;
+            document.getElementById('totalSteps').textContent = totalSteps;
+        }
+
+        function nextStep() {
+            if (currentStep < totalSteps) {
+                steps[currentStep]();
+                currentStep++;
+                updateStepCounter();
+            }
+        }
+
+        function prevStep() {
+            if (currentStep > 0) {
+                currentStep--;
+
+                // Hide the element that was just shown
+                switch (currentStep) {
+                    case 0:
+                        hideTitle();
+                        break;
+                    case 1:
+                        hideAuthor();
+                        break;
+                }
+
+                updateStepCounter();
+            }
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Enter') {
+                e.preventDefault();
+                nextStep();
+            } else if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                prevStep();
+            }
+        });
+
+        // Click navigation
+        document.addEventListener('click', (e) => {
+            if (e.clientX > window.innerWidth / 2) {
+                nextStep();
+            } else {
+                prevStep();
+            }
+        });
+
+        // Initialize
+        updateStepCounter();
+
+        // Message communication for unified deck
+        window.addEventListener('message', (e) => {
+            if (e.data === 'next') nextStep();
+            if (e.data === 'prev') prevStep();
+        });
+
+        function reportState() {
+            window.parent.postMessage({
+                type: 'slideState',
+                currentStep: currentStep,
+                totalSteps: totalSteps
+            }, '*');
+        }
+
+        // Wrap original updateStepCounter to also report state
+        const originalUpdateStepCounter = updateStepCounter;
+        updateStepCounter = function () {
+            originalUpdateStepCounter();
+            reportState();
+        };
+
+        // Initial report
+        reportState();
+    </script>
+
+</body>
+
+</html>

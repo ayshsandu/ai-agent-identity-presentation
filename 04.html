@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agentic Era Presentation</title>
+    <style>
+        :root {
+            --bg-color: #1a1a1a;
+            --text-white: #ffffff;
+            --accent-orange: #f5821f;
+            --text-dim: #b3b3b3;
+            --transition-speed: 0.6s;
+        }
+
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-color);
+            color: var(--text-white);
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            overflow: hidden;
+            cursor: none;
+        }
+
+        .presentation-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity var(--transition-speed) ease-in-out;
+            /* Reduced padding to maximize content area */
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .slide.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Slide 1 Styling */
+        .slide#slide-1 {
+            padding: 80px;
+            /* Match standard padding for the title slides */
+        }
+
+        /* Title Section Style from Slide 3 */
+        .title-section {
+            margin-bottom: 80px;
+            opacity: 0;
+            transform: translateY(-30px);
+            transition: all 0.8s ease-out;
+        }
+
+        .title-section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .title-section h1 {
+            font-size: 56px;
+            font-weight: 700;
+            color: #ffffff;
+            margin: 0;
+            padding-left: 20px;
+            border-left: 8px solid #ff8c00;
+            line-height: 1.2;
+            text-align: left;
+        }
+
+        .title-orange {
+            color: #ff8c00;
+        }
+
+        .subtext {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2.5rem;
+            color: var(--text-dim);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease-out;
+        }
+
+        /* Slide 2 Styling - Optimized for Maximum Image Size */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            /* Reduced gap */
+            width: 100%;
+            height: 100%;
+            /* Fill the slide */
+        }
+
+        .evidence-card {
+            display: flex;
+            flex-direction: column;
+            opacity: 0;
+            transform: scale(0.95);
+            transition: all 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+            height: 100%;
+            /* Force card to full height */
+            overflow: hidden;
+        }
+
+        .image-placeholder {
+            width: 100%;
+            /* Flex grow ensures it eats up all available vertical space */
+            flex-grow: 1;
+            background: #2a2a2a;
+            border-radius: 8px;
+            border: 1px solid #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            margin-bottom: 8px;
+            /* Minimal margin for link */
+        }
+
+        .image-placeholder img {
+            width: 100%;
+            height: 100%;
+            /* Contain ensures the full image is visible without cropping, utilizing max space */
+            object-fit: contain;
+        }
+
+        .source-link {
+            font-size: 0.75rem;
+            /* Smaller text to save space for images */
+            color: var(--accent-orange);
+            text-decoration: underline;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            flex-shrink: 0;
+            /* Prevent link from shrinking, it stays at bottom */
+        }
+
+        /* Animation States */
+        .show {
+            opacity: 1 !important;
+            transform: translate(0) scale(1) !important;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="presentation-container">
+        <!-- Slide 1 -->
+        <div class="slide active" id="slide-1">
+            <div class="title-section" id="title">
+                <h1>
+                    In the <span class="title-orange">Agentic Era</span>
+                </h1>
+            </div>
+            <div class="subtext" id="s1-subtext">Can agents go rogue?</div>
+        </div>
+
+        <!-- Slide 2 -->
+        <div class="slide" id="slide-2">
+            <div class="content-grid">
+                <!-- Left Content -->
+                <div class="evidence-card" id="s2-left">
+                    <div class="image-placeholder">
+                        <img src="https://raw.githubusercontent.com/ayshsandu/ai-agent-identity-presentation/refs/heads/main/images/replit-db-deletion.png"
+                            alt="Replit DB Deletion Tweet">
+                    </div>
+                    <a href="https://x.com/jasonlk/status/1946069562723897802?lang=en" class="source-link"
+                        target="_blank">https://x.com/jasonlk/status/1946069562723897802?lang=en</a>
+                </div>
+
+                <!-- Right Content -->
+                <div class="evidence-card" id="s2-right">
+                    <div class="image-placeholder">
+                        <img src="https://github.com/ayshsandu/ai-agent-identity-presentation/blob/main/images/antigravity-drive-deletion.png?raw=true"
+                            alt="Google Antigravity Drive Deletion Reddit Post">
+                    </div>
+                    <a href="https://www.reddit.com/r/google_antigravity/comments/1p82or6/google_antigravity_just_deleted_the_contents_of/"
+                        class="source-link"
+                        target="_blank">https://www.reddit.com/r/google_antigravity/comments/1p82or6/google_antigravity_just_deleted_the_contents_of/</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * Logic: We track current slide and a "step" within that slide.
+         * Slide 1: Step 0 (Title), Step 1 (Subtext)
+         * Slide 2: Step 0 (Left Image), Step 1 (Right Image)
+         */
+
+        let currentSlide = 0;
+        let currentStep = 0;
+        const slides = document.querySelectorAll('.slide');
+
+        function updateView() {
+            // Handle Slide Visibility
+            slides.forEach((slide, index) => {
+                slide.classList.toggle('active', index === currentSlide);
+            });
+
+            // Reset/Set internal steps
+            if (currentSlide === 0) {
+                document.getElementById('title').classList.add('visible');
+                document.getElementById('s1-subtext').classList.toggle('show', currentStep >= 1);
+            }
+
+            if (currentSlide === 1) {
+                document.getElementById('s2-left').classList.toggle('show', currentStep >= 0);
+                document.getElementById('s2-right').classList.toggle('show', currentStep >= 1);
+            }
+        }
+
+        function next() {
+            if (currentSlide === 0) {
+                if (currentStep < 1) {
+                    currentStep++;
+                } else {
+                    currentSlide = 1;
+                    currentStep = 0;
+                }
+            } else if (currentSlide === 1) {
+                if (currentStep < 1) {
+                    currentStep++;
+                }
+            }
+            updateView();
+        }
+
+        function prev() {
+            if (currentSlide === 1) {
+                if (currentStep > 0) {
+                    currentStep--;
+                } else {
+                    currentSlide = 0;
+                    currentStep = 1;
+                }
+            } else if (currentSlide === 0) {
+                if (currentStep > 0) {
+                    currentStep--;
+                }
+            }
+            updateView();
+        }
+
+        // Key Navigation
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Enter') next();
+            if (e.key === 'ArrowLeft') prev();
+        });
+
+        // Initial trigger
+        window.onload = () => {
+            updateView();
+            reportState();
+        };
+
+        // Message communication for unified deck
+        window.addEventListener('message', (e) => {
+            if (e.data === 'next') next();
+            if (e.data === 'prev') prev();
+        });
+
+        function reportState() {
+            // totalSteps calculation for 04.html:
+            // Slide 1 has 2 steps (0, 1), Slide 2 has 2 steps (0, 1).
+            // Total sub-steps across all slides: 0, 1, 2, 3 (Total 4 states, max index 3)
+            // currentStep index in linear fashion:
+            let linearStep = (currentSlide * 2) + currentStep;
+            window.parent.postMessage({
+                type: 'slideState',
+                currentStep: linearStep,
+                totalSteps: 3
+            }, '*');
+        }
+
+        // Update view to also report state
+        const originalUpdateView = updateView;
+        updateView = function () {
+            originalUpdateView();
+            reportState();
+        };
+    </script>
+</body>
+
+</html>

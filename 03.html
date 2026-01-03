@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>What is Identity & Access Management?</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #2a2a2a;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .slide-container {
+            width: 100%;
+            max-width: 1400px;
+            padding: 60px 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            min-height: 100vh;
+        }
+
+        /* Title Section */
+        .title-section {
+            margin-bottom: 80px;
+            opacity: 0;
+            transform: translateY(-30px);
+            transition: all 0.8s ease-out;
+        }
+
+        .title-section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .title-section h1 {
+            font-size: 56px;
+            font-weight: 700;
+            color: #ffffff;
+            margin: 0;
+            padding-left: 20px;
+            border-left: 8px solid #ff8c00;
+            line-height: 1.2;
+        }
+
+        .title-orange {
+            color: #ff8c00;
+        }
+
+        /* Diagram Container */
+        .diagram-container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            opacity: 0;
+            transform: scale(0.95);
+            transition: all 0.8s ease-out;
+        }
+
+        .diagram-container.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* SVG Styles */
+        svg {
+            width: 100%;
+            height: auto;
+            overflow: visible;
+        }
+
+        .node-box {
+            fill: #1a1a1a;
+            stroke: #444;
+            stroke-width: 2;
+            rx: 8;
+        }
+
+        .node-box,
+        .node-icon,
+        .node-title,
+        .node-desc {
+            transition: all 0.5s ease;
+        }
+
+        /* Hide elements initially */
+        #g-who,
+        #g-access,
+        #g-what,
+        .flow-line {
+            opacity: 0;
+            transition: opacity 0.8s ease;
+        }
+
+        .visible-element {
+            opacity: 1 !important;
+        }
+
+        /* Boost Animation */
+        @keyframes orangeBoost {
+            0% {
+                filter: drop-shadow(0 0 0 rgba(255, 140, 0, 0));
+                stroke: #444;
+            }
+
+            50% {
+                filter: drop-shadow(0 0 15px rgba(255, 140, 0, 0.8));
+                stroke: #ff8c00;
+            }
+
+            100% {
+                filter: drop-shadow(0 0 0 rgba(255, 140, 0, 0));
+                stroke: #444;
+            }
+        }
+
+        .boost .node-box {
+            animation: orangeBoost 1s ease-out forwards;
+        }
+
+        .node-title {
+            font-size: 20px;
+            font-weight: bold;
+            fill: #ffffff;
+            text-anchor: middle;
+        }
+
+        .node-desc {
+            font-size: 14px;
+            fill: #aaa;
+            text-anchor: middle;
+        }
+
+        .flow-line {
+            fill: none;
+            stroke: #555;
+            stroke-width: 3;
+            stroke-linecap: round;
+        }
+
+        .flow-packet {
+            fill: #ff8c00;
+            r: 5;
+            opacity: 0;
+            display: none;
+        }
+
+        /* Status Text */
+        #status-text {
+            fill: #aaa;
+            font-size: 16px;
+            text-anchor: middle;
+        }
+
+        /* Navigation Instructions */
+        .nav-instructions {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 12px 24px;
+            border-radius: 25px;
+            color: #fff;
+            font-size: 14px;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+        }
+
+        .nav-instructions:hover {
+            opacity: 1;
+        }
+
+        /* Step Counter */
+        .step-counter {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 10px 20px;
+            border-radius: 20px;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="slide-container">
+        <!-- Title -->
+        <div class="title-section" id="title">
+            <h1>
+                What is <span class="title-orange">Identity & Access Management</span> ?
+            </h1>
+        </div>
+
+        <!-- Diagram -->
+        <div class="diagram-container" id="diagram">
+            <svg viewBox="0 0 800 280">
+                <defs>
+                    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                        <path d="M0,0 L0,6 L9,3 z" fill="#555" />
+                    </marker>
+                </defs>
+
+                <!-- Connecting Lines -->
+                <path id="path-1-2" class="flow-line" d="M220 125 L310 125" marker-end="url(#arrow)" />
+                <path id="path-2-3" class="flow-line" d="M490 125 L580 125" marker-end="url(#arrow)" />
+
+                <!-- Moving Packet -->
+                <circle class="flow-packet" id="packet">
+                    <animateMotion id="anim1" begin="indefinite" dur="1s" fill="freeze">
+                        <mpath href="#path-1-2" />
+                    </animateMotion>
+                    <animateMotion id="anim2" begin="indefinite" dur="1s" fill="freeze">
+                        <mpath href="#path-2-3" />
+                    </animateMotion>
+                </circle>
+
+                <!-- Node 1: Who -->
+                <g id="g-who" transform="translate(40, 40)">
+                    <rect class="node-box" width="180" height="170" />
+                    <g transform="translate(65, 30) scale(1.6)">
+                        <!-- Back User Left -->
+                        <path d="M-10 32 A 5 5 0 0 1 -2 32" stroke="#ffffff" stroke-width="2" fill="none"
+                            opacity="0.6" />
+                        <circle cx="-6" cy="18" r="5" stroke="#ffffff" stroke-width="2" fill="none" opacity="0.6" />
+                        <!-- Back User Right -->
+                        <path d="M34 32 A 5 5 0 0 1 42 32" stroke="#ffffff" stroke-width="2" fill="none"
+                            opacity="0.6" />
+                        <circle cx="38" cy="18" r="5" stroke="#ffffff" stroke-width="2" fill="none" opacity="0.6" />
+                        <!-- Main User -->
+                        <circle cx="16" cy="15" r="7" stroke="#ffffff" stroke-width="2.5" fill="none" />
+                        <path d="M2 35 Q16 22 30 35" stroke="#ffffff" stroke-width="2.5" fill="none" />
+                    </g>
+                    <text x="90" y="120" class="node-title">Who</text>
+                    <text x="90" y="145" class="node-desc">
+                        <tspan x="90" dy="0">"Workforce, Customers,</tspan>
+                        <tspan x="90" dy="1.2em">Devices, Services"</tspan>
+                    </text>
+                </g>
+
+                <!-- Node 2: Can Access -->
+                <g id="g-access" transform="translate(310, 40)">
+                    <rect class="node-box" width="180" height="170" />
+                    <g transform="translate(65, 35) scale(1.6)">
+                        <!-- Document -->
+                        <rect x="5" y="0" width="22" height="30" rx="2" stroke="#ffffff" stroke-width="2.5"
+                            fill="none" />
+                        <!-- Checkmarks -->
+                        <path d="M10 8 L13 11 L18 6" stroke="#ff8c00" stroke-width="2.5" fill="none"
+                            stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M10 16 L13 19 L18 14" stroke="#ff8c00" stroke-width="2.5" fill="none"
+                            stroke-linecap="round" stroke-linejoin="round" />
+                        <!-- Cross -->
+                        <path d="M11 23 L17 29 M17 23 L11 29" stroke="#d73a49" stroke-width="2" fill="none"
+                            stroke-linecap="round" />
+                    </g>
+                    <text x="90" y="120" class="node-title">Can Access</text>
+                    <text x="90" y="145" class="node-desc">"Permissions & Policies"</text>
+                </g>
+
+                <!-- Node 3: What -->
+                <g id="g-what" transform="translate(580, 40)">
+                    <rect class="node-box" width="180" height="170" />
+                    <g transform="translate(60, 30) scale(1.4)">
+                        <!-- Key -->
+                        <g transform="translate(10, 0) rotate(45)">
+                            <path d="M5 10 A 5 5 0 1 1 15 10 V 20 L 12 20 L 12 22 L 10 22 L 10 20 L 5 20 Z"
+                                stroke="#ff8c00" stroke-width="2" fill="none" />
+                            <circle cx="10" cy="10" r="2" fill="#ff8c00" />
+                        </g>
+                        <!-- Bucket -->
+                        <path d="M0 25 C0 22 10 22 10 25 V 35 C10 38 0 38 0 35 V 25" stroke="#ffffff" stroke-width="2"
+                            fill="none" />
+                        <ellipse cx="5" cy="25" rx="5" ry="1.5" stroke="#ffffff" stroke-width="2" fill="none" />
+                        <!-- Cube -->
+                        <path d="M20 28 L 30 23 L 40 28 L 30 33 Z" stroke="#a855f7" stroke-width="2" fill="none" />
+                        <path d="M20 28 V 38 L 30 43 V 33" stroke="#a855f7" stroke-width="2" fill="none" />
+                        <path d="M40 28 V 38 L 30 43" stroke="#a855f7" stroke-width="2" fill="none" />
+                    </g>
+                    <text x="90" y="120" class="node-title">What</text>
+                    <text x="90" y="145" class="node-desc">
+                        <tspan x="90" dy="0">"Apps, Files, Data,</tspan>
+                        <tspan x="90" dy="1.2em">APIs, Actions"</tspan>
+                    </text>
+                </g>
+
+                <!-- Status Text -->
+                <text id="status-text" x="400" y="260">Click to see what it is!</text>
+            </svg>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="nav-instructions">
+        Press → (Next) or ← (Previous) to navigate
+    </div>
+
+    <!-- Step Counter -->
+    <div class="step-counter">
+        Step <span id="currentStep">0</span> / <span id="totalSteps">5</span>
+    </div>
+
+    <script>
+        let currentStep = 0;
+        const totalSteps = 5;
+
+        const packet = document.getElementById('packet');
+        const statusText = document.getElementById('status-text');
+        const nodes = {
+            who: document.getElementById('g-who'),
+            access: document.getElementById('g-access'),
+            what: document.getElementById('g-what')
+        };
+        const anims = {
+            1: document.getElementById('anim1'),
+            2: document.getElementById('anim2')
+        };
+
+        let isAnimating = false;
+
+        function showTitle() {
+            document.getElementById('title').classList.add('visible');
+        }
+
+        function hideTitle() {
+            document.getElementById('title').classList.remove('visible');
+        }
+
+        function showDiagram() {
+            document.getElementById('diagram').classList.add('visible');
+        }
+
+        function hideDiagram() {
+            document.getElementById('diagram').classList.remove('visible');
+        }
+
+        function revealNode(node) {
+            node.classList.add('visible-element');
+            node.classList.remove('boost');
+            void node.offsetWidth;
+            node.classList.add('boost');
+        }
+
+        function hideNode(node) {
+            node.classList.remove('visible-element');
+            node.classList.remove('boost');
+        }
+
+        async function triggerPulse(animId) {
+            return new Promise(resolve => {
+                packet.style.opacity = 1;
+                packet.style.display = 'none';
+                setTimeout(() => {
+                    packet.style.display = 'block';
+                    anims[animId].beginElement();
+                    setTimeout(resolve, 1000);
+                }, 50);
+            });
+        }
+
+        function hideLine(lineId) {
+            document.getElementById(lineId).classList.remove('visible-element');
+        }
+
+        async function showWhoNode() {
+            statusText.textContent = "1. Who: The Identities";
+            revealNode(nodes.who);
+        }
+
+        async function showAccessNode() {
+            if (isAnimating) return;
+            isAnimating = true;
+            statusText.textContent = "2. Can Access: The Permissions";
+            document.getElementById('path-1-2').classList.add('visible-element');
+            await triggerPulse(1);
+            revealNode(nodes.access);
+            packet.style.opacity = 0;
+            isAnimating = false;
+        }
+
+        async function showWhatNode() {
+            if (isAnimating) return;
+            isAnimating = true;
+            statusText.textContent = "3. What: The Resources";
+            document.getElementById('path-2-3').classList.add('visible-element');
+            await triggerPulse(2);
+            revealNode(nodes.what);
+            packet.style.opacity = 0;
+            isAnimating = false;
+        }
+
+        const steps = [
+            () => showTitle(),
+            () => showDiagram(),
+            () => showWhoNode(),
+            () => showAccessNode(),
+            () => showWhatNode()
+        ];
+
+        function updateStepCounter() {
+            document.getElementById('currentStep').textContent = currentStep;
+            document.getElementById('totalSteps').textContent = totalSteps;
+        }
+
+        async function nextStep() {
+            if (isAnimating) return;
+            if (currentStep < totalSteps) {
+                await steps[currentStep]();
+                currentStep++;
+                updateStepCounter();
+            }
+        }
+
+        function prevStep() {
+            if (isAnimating) return;
+            if (currentStep > 0) {
+                currentStep--;
+
+                switch (currentStep) {
+                    case 0:
+                        hideTitle();
+                        break;
+                    case 1:
+                        hideDiagram();
+                        break;
+                    case 2:
+                        hideNode(nodes.who);
+                        statusText.textContent = "Click to advance";
+                        break;
+                    case 3:
+                        hideNode(nodes.access);
+                        hideLine('path-1-2');
+                        packet.style.opacity = 0;
+                        packet.style.display = 'none';
+                        statusText.textContent = "1. Who: The Identities";
+                        break;
+                    case 4:
+                        hideNode(nodes.what);
+                        hideLine('path-2-3');
+                        packet.style.opacity = 0;
+                        packet.style.display = 'none';
+                        statusText.textContent = "2. Can Access: The Permissions";
+                        break;
+                }
+
+                updateStepCounter();
+            }
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Enter') {
+                e.preventDefault();
+                nextStep();
+            } else if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                prevStep();
+            }
+        });
+
+        // Click navigation
+        document.addEventListener('click', (e) => {
+            if (e.clientX > window.innerWidth / 2) {
+                nextStep();
+            } else {
+                prevStep();
+            }
+        });
+
+        // Initialize
+        updateStepCounter();
+
+        // Message communication for unified deck
+        window.addEventListener('message', (e) => {
+            if (e.data === 'next') nextStep();
+            if (e.data === 'prev') prevStep();
+        });
+
+        function reportState() {
+            window.parent.postMessage({
+                type: 'slideState',
+                currentStep: currentStep,
+                totalSteps: totalSteps
+            }, '*');
+        }
+
+        // Wrap original updateStepCounter to also report state
+        const originalUpdateStepCounter = updateStepCounter;
+        updateStepCounter = function () {
+            originalUpdateStepCounter();
+            reportState();
+        };
+
+        // Initial report
+        reportState();
+    </script>
+
+</body>
+
+</html>

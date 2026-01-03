@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traditional Software vs. Agentic AI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #0a0a0a;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        /* Main Container */
+        .presentation-container {
+            width: 100%;
+            max-width: 1400px;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+        }
+
+        /* Title Section Style from Slide 3 */
+        .title-section {
+            margin-bottom: 20px;
+            opacity: 0;
+            transform: translateY(-30px);
+            transition: all 0.8s ease-out;
+            width: 100%;
+        }
+
+        .title-section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .title-section h1 {
+            font-size: 56px;
+            font-weight: 700;
+            color: #ffffff;
+            margin: 0;
+            padding-left: 20px;
+            border-left: 8px solid #ff8c00;
+            line-height: 1.2;
+            text-align: left;
+        }
+
+        .title-orange {
+            color: #ff8c00;
+        }
+
+        /* Comparison Container */
+        .comparison-container {
+            display: flex;
+            gap: 60px;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        /* Phone Frames */
+        .phone-wrapper {
+            opacity: 0;
+            transform: scale(0.8);
+            transition: all 0.6s ease-out;
+        }
+
+        .phone-wrapper.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .phone-frame {
+            width: 360px;
+            height: 680px;
+            background-color: #000;
+            border-radius: 40px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            border: 8px solid #2d2d2d;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Classic Chatbot Styles */
+        .classic .chat-header {
+            background-color: #2c2c2c;
+            padding: 20px 15px 15px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #3a3a3a;
+        }
+
+        .classic .bot-avatar {
+            width: 40px;
+            height: 40px;
+            background-color: #7f8c8d;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 12px;
+            font-size: 20px;
+        }
+
+        .classic .bot-info h3 {
+            margin: 0;
+            color: #ecf0f1;
+            font-size: 16px;
+        }
+
+        .classic .bot-info span {
+            font-size: 12px;
+            color: #95a5a6;
+        }
+
+        .classic .chat-area {
+            flex: 1;
+            background-color: #1e1e1e;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            scroll-behavior: smooth;
+        }
+
+        .classic .message {
+            max-width: 80%;
+            padding: 12px 16px;
+            font-size: 14px;
+            line-height: 1.5;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease-out;
+        }
+
+        .classic .message.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .classic .message.user {
+            align-self: flex-end;
+            background-color: #0084ff;
+            color: white;
+            border-radius: 18px 18px 2px 18px;
+        }
+
+        .classic .message.bot {
+            align-self: flex-start;
+            background-color: #3a3a3a;
+            color: #e0e0e0;
+            border-radius: 18px 18px 18px 2px;
+        }
+
+        .classic .recipe-content {
+            font-size: 13px;
+            color: #ccc;
+            margin-top: 5px;
+            background: #2a2a2a;
+            padding: 10px;
+            border-radius: 8px;
+            border-left: 3px solid #7f8c8d;
+        }
+
+        .classic .recipe-title {
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .classic .input-area {
+            background-color: #2c2c2c;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            border-top: 1px solid #3a3a3a;
+        }
+
+        .classic .input-box {
+            flex: 1;
+            background-color: #1a1a1a;
+            border: 1px solid #444;
+            border-radius: 20px;
+            padding: 10px 15px;
+            color: #777;
+            font-size: 14px;
+        }
+
+        /* Agent Styles */
+        .agent .chat-header {
+            background-color: #1a1a1a;
+            padding: 20px 20px 15px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #333;
+        }
+
+        .agent .agent-avatar {
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, #ffaf40, #ff6b6b);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 12px;
+            font-size: 20px;
+            color: white;
+            box-shadow: 0 0 10px rgba(255, 175, 64, 0.4);
+        }
+
+        .agent .agent-info h3 {
+            margin: 0;
+            color: #fff;
+            font-size: 17px;
+            font-weight: 600;
+        }
+
+        .agent .agent-info span {
+            font-size: 12px;
+            color: #ffaf40;
+        }
+
+        .agent .chat-area {
+            flex: 1;
+            background-color: #111;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            scroll-behavior: smooth;
+        }
+
+        .agent .message {
+            max-width: 85%;
+            padding: 14px 18px;
+            font-size: 15px;
+            line-height: 1.5;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease-out;
+        }
+
+        .agent .message.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .agent .message.user {
+            align-self: flex-end;
+            background-color: #0084ff;
+            color: #fff;
+            border-radius: 20px 20px 4px 20px;
+        }
+
+        .agent .message.agent-card {
+            align-self: flex-start;
+            background-color: #1e1e24;
+            border: 1px solid #362e29;
+            border-radius: 20px 20px 20px 4px;
+            padding: 20px 22px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            width: 100%;
+        }
+
+        .agent .message.agent-thinking {
+            align-self: flex-start;
+            background-color: #1e1e24;
+            border: 1px solid #333;
+            border-radius: 20px 20px 20px 4px;
+            color: #bbb;
+            font-size: 14px;
+            font-style: italic;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 20px;
+        }
+
+        .agent .thinking-pulse {
+            width: 8px;
+            height: 8px;
+            background-color: #ffaf40;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite ease-in-out;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(0.8);
+                opacity: 0.5;
+            }
+
+            50% {
+                transform: scale(1.2);
+                opacity: 1;
+                box-shadow: 0 0 8px #ffaf40;
+            }
+
+            100% {
+                transform: scale(0.8);
+                opacity: 0.5;
+            }
+        }
+
+        .agent .agent-headline {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            background: linear-gradient(90deg, #feca57, #ff6b6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.4;
+        }
+
+        .agent .action-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .agent .action-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 12px;
+            color: #b0b3b8;
+            font-size: 14px;
+        }
+
+        .agent .check-icon {
+            margin-right: 12px;
+            color: #e0e0e0;
+            font-weight: bold;
+            font-size: 16px;
+            min-width: 20px;
+        }
+
+        .agent .input-area {
+            background-color: #1a1a1a;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            border-top: 1px solid #333;
+        }
+
+        .agent .input-box {
+            flex: 1;
+            background-color: #2a2a2a;
+            border: 1px solid #444;
+            border-radius: 25px;
+            padding: 12px 20px;
+            color: #aaa;
+            font-size: 14px;
+        }
+
+        /* Navigation Instructions */
+        .nav-instructions {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 12px 24px;
+            border-radius: 25px;
+            color: #fff;
+            font-size: 14px;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+        }
+
+        .nav-instructions:hover {
+            opacity: 1;
+        }
+
+        /* Step Counter */
+        .step-counter {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 10px 20px;
+            border-radius: 20px;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="presentation-container">
+        <!-- Title -->
+        <div class="title-section" id="title">
+            <h1>Traditional Software vs. <span class="title-orange">Agentic AI</span></h1>
+        </div>
+
+        <!-- Comparison -->
+        <div class="comparison-container">
+            <!-- Classic Chatbot -->
+            <div class="phone-wrapper classic-wrapper" id="classicWrapper">
+                <div class="phone-frame classic">
+                    <div class="chat-header">
+                        <div class="bot-avatar">🤖</div>
+                        <div class="bot-info">
+                            <h3>Classic Chatbot</h3>
+                            <span>• Online</span>
+                        </div>
+                    </div>
+
+                    <div class="chat-area">
+                        <div class="message user" id="classic-msg-1">
+                            Can you help me bake a cheesecake?
+                        </div>
+
+                        <div class="message bot" id="classic-msg-2">
+                            Here's the recipe for <b>Classic New York Cheesecake</b>:
+                            <div class="recipe-content">
+                                <span class="recipe-title">Ingredients:</span>
+                                Cream cheese, sugar, eggs, vanilla extract, graham cracker crust...<br><br>
+                                <span class="recipe-title">Instructions:</span>
+                                1. Preheat oven to 325°F.<br>
+                                2. Mix ingredients until smooth.<br>
+                                3. Pour into crust.<br>
+                                4. Bake in a <b>water bath</b> for 60 mins...
+                            </div>
+                        </div>
+
+                        <div class="message user" id="classic-msg-3">
+                            What is a water bath?
+                        </div>
+
+                        <div class="message bot" id="classic-msg-4">
+                            Sorry, I don't understand that command. Please type "Help" for a list of recipes I can
+                            search for.
+                        </div>
+                    </div>
+
+                    <div class="input-area">
+                        <div class="input-box">Type a message...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Intelligent Agent -->
+            <div class="phone-wrapper agent-wrapper" id="agentWrapper">
+                <div class="phone-frame agent">
+                    <div class="chat-header">
+                        <div class="agent-avatar">⚡</div>
+                        <div class="agent-info">
+                            <h3>Intelligent Agent</h3>
+                            <span>Active • Orchestrating</span>
+                        </div>
+                    </div>
+
+                    <div class="chat-area">
+                        <div class="message user" id="agent-msg-1">
+                            Can you help me bake a cheesecake?
+                        </div>
+
+                        <div class="message agent-card" id="agent-msg-2">
+                            <div class="agent-headline">
+                                "I'd love to help you make the perfect cheesecake!"
+                            </div>
+                            <ul class="action-list">
+                                <li class="action-item">
+                                    <span class="check-icon">✓</span>
+                                    <span>Found a highly-rated NY-style recipe</span>
+                                </li>
+                                <li class="action-item">
+                                    <span class="check-icon">✓</span>
+                                    <span>Added ingredients to your grocery cart</span>
+                                </li>
+                                <li class="action-item">
+                                    <span class="check-icon">✓</span>
+                                    <span>Scheduled a baking reminder for Saturday</span>
+                                </li>
+                                <li class="action-item">
+                                    <span class="check-icon">✓</span>
+                                    <span>Generated a step-by-step visual guide</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="message user" id="agent-msg-3">
+                            what is a waterbath?
+                        </div>
+
+                        <div class="message agent-thinking" id="agent-msg-4">
+                            <div class="thinking-pulse"></div>
+                            Thinking ...
+                        </div>
+                    </div>
+
+                    <div class="input-area">
+                        <div class="input-box">Reply to agent...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="nav-instructions">
+        Press → (Next) or ← (Previous) to navigate
+    </div>
+
+    <!-- Step Counter -->
+    <div class="step-counter" id="stepCounter">
+        Step <span id="currentStep">0</span> / <span id="totalSteps">10</span>
+    </div>
+
+    <script>
+        let currentStep = 0;
+        const totalSteps = 10;
+
+        const steps = [
+            () => showTitle(),                    // 0: Title
+            () => showClassicWrapper(),           // 1: Classic bot appears
+            () => showElement('classic-msg-1'),   // 2: User message 1
+            () => showElement('classic-msg-2'),   // 3: Bot response 1
+            () => showAgentWrapper(),             // 4: Agent appears
+            () => showElement('agent-msg-1'),     // 5: User message 1
+            () => showElement('agent-msg-2'),     // 6: Agent response 1
+            () => showBothMessages3(),            // 7: Both user message 2
+            () => showElement('classic-msg-4'),   // 8: Classic bot response 2
+            () => showElement('agent-msg-4')      // 9: Agent thinking
+        ];
+
+        function showTitle() {
+            document.getElementById('title').classList.add('visible');
+        }
+
+        function hideTitle() {
+            document.getElementById('title').classList.remove('visible');
+        }
+
+        function showClassicWrapper() {
+            document.getElementById('classicWrapper').classList.add('visible');
+        }
+
+        function hideClassicWrapper() {
+            document.getElementById('classicWrapper').classList.remove('visible');
+        }
+
+        function showAgentWrapper() {
+            document.getElementById('agentWrapper').classList.add('visible');
+        }
+
+        function hideAgentWrapper() {
+            document.getElementById('agentWrapper').classList.remove('visible');
+        }
+
+        function showElement(id) {
+            const element = document.getElementById(id);
+            element.classList.add('visible');
+
+            // Scroll the element into view
+            setTimeout(() => {
+                element.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'end',
+                    inline: 'nearest'
+                });
+            }, 100);
+        }
+
+        function hideElement(id) {
+            document.getElementById(id).classList.remove('visible');
+        }
+
+        function showBothMessages3() {
+            const classic = document.getElementById('classic-msg-3');
+            const agent = document.getElementById('agent-msg-3');
+
+            classic.classList.add('visible');
+            agent.classList.add('visible');
+
+            // Scroll both chat areas to show the new messages
+            setTimeout(() => {
+                classic.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'end',
+                    inline: 'nearest'
+                });
+                agent.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'end',
+                    inline: 'nearest'
+                });
+            }, 100);
+        }
+
+        function hideBothMessages3() {
+            hideElement('classic-msg-3');
+            hideElement('agent-msg-3');
+
+            // Scroll back up to show previous messages
+            setTimeout(() => {
+                const classic = document.getElementById('classic-msg-2');
+                const agent = document.getElementById('agent-msg-2');
+                if (classic) classic.scrollIntoView({ behavior: 'smooth', block: 'end' });
+                if (agent) agent.scrollIntoView({ behavior: 'smooth', block: 'end' });
+            }, 100);
+        }
+
+        function updateStepCounter() {
+            document.getElementById('currentStep').textContent = currentStep;
+            document.getElementById('totalSteps').textContent = totalSteps;
+        }
+
+        function nextStep() {
+            if (currentStep < totalSteps) {
+                steps[currentStep]();
+                currentStep++;
+                updateStepCounter();
+            }
+        }
+
+        function prevStep() {
+            if (currentStep > 0) {
+                currentStep--;
+
+                // Hide the element that was just shown
+                switch (currentStep) {
+                    case 0:
+                        hideTitle();
+                        break;
+                    case 1:
+                        hideClassicWrapper();
+                        break;
+                    case 2:
+                        hideElement('classic-msg-1');
+                        break;
+                    case 3:
+                        hideElement('classic-msg-2');
+                        // Scroll back to first message
+                        setTimeout(() => {
+                            const elem = document.getElementById('classic-msg-1');
+                            if (elem) elem.scrollIntoView({ behavior: 'smooth', block: 'end' });
+                        }, 100);
+                        break;
+                    case 4:
+                        hideAgentWrapper();
+                        break;
+                    case 5:
+                        hideElement('agent-msg-1');
+                        break;
+                    case 6:
+                        hideElement('agent-msg-2');
+                        // Scroll back to first message
+                        setTimeout(() => {
+                            const elem = document.getElementById('agent-msg-1');
+                            if (elem) elem.scrollIntoView({ behavior: 'smooth', block: 'end' });
+                        }, 100);
+                        break;
+                    case 7:
+                        hideBothMessages3();
+                        break;
+                    case 8:
+                        hideElement('classic-msg-4');
+                        // Scroll back to show message 3
+                        setTimeout(() => {
+                            const elem = document.getElementById('classic-msg-3');
+                            if (elem) elem.scrollIntoView({ behavior: 'smooth', block: 'end' });
+                        }, 100);
+                        break;
+                    case 9:
+                        hideElement('agent-msg-4');
+                        // Scroll back to show message 3
+                        setTimeout(() => {
+                            const elem = document.getElementById('agent-msg-3');
+                            if (elem) elem.scrollIntoView({ behavior: 'smooth', block: 'end' });
+                        }, 100);
+                        break;
+                }
+
+                updateStepCounter();
+            }
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Enter') {
+                e.preventDefault();
+                nextStep();
+            } else if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                prevStep();
+            }
+        });
+
+        // Click navigation
+        document.addEventListener('click', (e) => {
+            if (e.clientX > window.innerWidth / 2) {
+                nextStep();
+            } else {
+                prevStep();
+            }
+        });
+
+        // Initialize
+        window.onload = () => {
+            updateStepCounter();
+            reportState();
+        };
+
+        // Message communication for unified deck
+        window.addEventListener('message', (e) => {
+            if (e.data === 'next') nextStep();
+            if (e.data === 'prev') prevStep();
+        });
+
+        function reportState() {
+            window.parent.postMessage({
+                type: 'slideState',
+                currentStep: currentStep,
+                totalSteps: totalSteps
+            }, '*');
+        }
+
+        // Wrap nextStep and prevStep to also report state
+        const originalNextStep = nextStep;
+        nextStep = function () {
+            originalNextStep();
+            reportState();
+        };
+
+        const originalPrevStep = prevStep;
+        prevStep = function () {
+            originalPrevStep();
+            reportState();
+        };
+    </script>
+
+</body>
+
+</html>

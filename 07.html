@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot vs Agent - Architecture</title>
+    <style>
+        :root {
+            --bg-color: #1a1a1a;
+            --text-white: #ffffff;
+            --accent-orange: #f5821f;
+            --text-dim: #b3b3b3;
+            --transition-speed: 0.6s;
+        }
+
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-color);
+            color: var(--text-white);
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            overflow: hidden;
+            cursor: none;
+        }
+
+        .presentation-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            padding: 40px 60px;
+            /* Standard padding */
+            box-sizing: border-box;
+        }
+
+        /* Title Section Style from Slide 3 */
+        .title-section {
+            margin-bottom: 20px;
+            opacity: 0;
+            transform: translateY(-30px);
+            transition: all 0.8s ease-out;
+            width: 100%;
+        }
+
+        .title-section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .title-section h1 {
+            font-size: 56px;
+            font-weight: 700;
+            color: #ffffff;
+            margin: 0;
+            padding-left: 20px;
+            border-left: 8px solid #ff8c00;
+            line-height: 1.2;
+            text-align: left;
+        }
+
+        .title-orange {
+            color: #ff8c00;
+        }
+
+        /* Diagram Container */
+        .diagram-container {
+            flex-grow: 1;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        svg {
+            width: 100%;
+            height: 100%;
+            max-height: 80vh;
+            overflow: visible;
+        }
+
+        /* Text Styles inside SVG */
+        .svg-title {
+            font-size: 24px;
+            font-weight: bold;
+            fill: var(--text-white);
+            text-anchor: middle;
+        }
+
+        .svg-label-bold {
+            font-size: 14px;
+            font-weight: 700;
+            fill: var(--text-dim);
+            text-anchor: middle;
+        }
+
+        .svg-label-tool {
+            font-size: 14px;
+            font-weight: 600;
+            fill: #e0e0e0;
+            text-anchor: start;
+            alignment-baseline: middle;
+        }
+
+        .bubble-rect {
+            fill: #333;
+            stroke: #555;
+        }
+
+        .bubble-text {
+            font-size: 12px;
+            fill: var(--text-white);
+            font-family: monospace;
+        }
+
+        /* Animation Classes */
+        .anim-group {
+            opacity: 0;
+            transition: opacity 0.8s ease-in-out, transform 0.8s ease-out;
+        }
+
+        .anim-group.fade-in-left {
+            transform: translateX(-20px);
+        }
+
+        .anim-group.fade-in-right {
+            transform: translateX(20px);
+        }
+
+        .anim-group.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* Divider Animation */
+        #divider-line {
+            stroke-dasharray: 1000;
+            stroke-dashoffset: 1000;
+            transition: stroke-dashoffset 1.5s ease-in-out;
+        }
+
+        #divider-line.show {
+            stroke-dashoffset: 0;
+        }
+
+        /* Pulse Animation */
+        @keyframes pulse-ring {
+            0% {
+                r: 55;
+                opacity: 0.6;
+                stroke-width: 2;
+            }
+
+            100% {
+                r: 75;
+                opacity: 0;
+                stroke-width: 0;
+            }
+        }
+
+        .pulse {
+            fill: none;
+            stroke: var(--accent-orange);
+            animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="presentation-container">
+        <div class="slide">
+
+            <!-- Step 0: Title -->
+            <!-- Step 0: Title -->
+            <div class="title-section" id="title">
+                <h1>Architecture: <span class="title-orange">Chatbot vs. Agent</span></h1>
+            </div>
+
+            <div class="diagram-container">
+                <svg viewBox="0 0 1450 650" xmlns="http://www.w3.org/2000/svg">
+
+                    <!-- DEFS -->
+                    <defs>
+                        <marker id="arrow-gray" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"
+                            markerUnits="strokeWidth">
+                            <path d="M0,0 L0,6 L9,3 z" fill="#7f8c8d" />
+                        </marker>
+
+                        <marker id="arrow-orange" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"
+                            markerUnits="strokeWidth">
+                            <path d="M0,0 L0,6 L9,3 z" fill="#f5821f" />
+                        </marker>
+
+                        <linearGradient id="grad-bot" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" style="stop-color:#4a4a4a;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#2c2c2c;stop-opacity:1" />
+                        </linearGradient>
+
+                        <radialGradient id="grad-agent" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+                            <stop offset="0%" style="stop-color:#f5821f;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#d35400;stop-opacity:1" />
+                        </radialGradient>
+                    </defs>
+
+                    <!-- Step 1: Divider Line -->
+                    <line id="divider-line" x1="725" y1="20" x2="725" y2="630" stroke="#444" stroke-width="2"
+                        stroke-dasharray="8 8" />
+
+                    <!-- Step 2: Left Side (Classic Chatbot) -->
+                    <g id="left-group" class="anim-group fade-in-left">
+                        <text x="362" y="50" class="svg-title">Classic Chatbot</text>
+
+                        <!-- User Group Left -->
+                        <g transform="translate(137, 250)">
+                            <circle cx="20" cy="20" r="20" fill="#95a5a6" />
+                            <path d="M0,65 C0,40 40,40 40,65" stroke="#95a5a6" stroke-width="3" fill="none" />
+                            <text x="20" y="90" class="svg-label-bold">User</text>
+                        </g>
+
+                        <!-- Chatbot Box -->
+                        <rect x="387" y="230" width="140" height="80" rx="8" fill="url(#grad-bot)" stroke="#7f8c8d"
+                            stroke-width="2" />
+                        <text x="457" y="265" class="svg-label-bold" fill="#fff">Classic</text>
+                        <text x="457" y="285" class="svg-label-bold" fill="#fff">Chatbot</text>
+
+                        <!-- Recipe Database -->
+                        <g transform="translate(432, 420)">
+                            <path d="M0,10 A25,10 0 0,0 50,10 A25,10 0 0,0 0,10 M0,10 L0,50 A25,10 0 0,0 50,50 L50,10"
+                                fill="#2c2c2c" stroke="#7f8c8d" stroke-width="2" />
+                            <path d="M0,23 A25,10 0 0,0 50,23" fill="none" stroke="#7f8c8d" stroke-width="1" />
+                            <path d="M0,36 A25,10 0 0,0 50,36" fill="none" stroke="#7f8c8d" stroke-width="1" />
+                            <text x="25" y="85" class="svg-label-tool" style="text-anchor: middle;">Recipe DB</text>
+                        </g>
+
+                        <!-- Left Connections -->
+                        <line x1="187" y1="270" x2="377" y2="270" stroke="#7f8c8d" stroke-width="2"
+                            marker-end="url(#arrow-gray)" />
+                        <rect x="217" y="245" width="120" height="20" rx="4" class="bubble-rect" />
+                        <text x="277" y="259" class="bubble-text" text-anchor="middle">"Cheesecake help?"</text>
+
+                        <line x1="457" y1="310" x2="457" y2="410" stroke="#7f8c8d" stroke-width="2"
+                            marker-end="url(#arrow-gray)" stroke-dasharray="4" />
+
+                        <path d="M387,290 C287,380 237,350 177,310" fill="none" stroke="#27ae60" stroke-width="2"
+                            marker-end="url(#arrow-gray)" />
+                        <rect x="197" y="340" width="140" height="20" rx="4" fill="#1e3a2a" stroke="#27ae60" />
+                        <text x="267" y="354" class="bubble-text" text-anchor="middle" fill="#2ecc71">"Here's the
+                            recipe..."</text>
+                    </g>
+
+
+                    <!-- Step 3: Right Side (AI Agent) -->
+                    <g id="right-group" class="anim-group fade-in-right">
+                        <text x="1087" y="50" class="svg-title" fill="#f5821f">Intelligent AI Agent</text>
+
+                        <!-- User Group Right -->
+                        <g transform="translate(832, 250)">
+                            <circle cx="20" cy="20" r="20" fill="#f5821f" />
+                            <path d="M0,65 C0,40 40,40 40,65" stroke="#f5821f" stroke-width="3" fill="none" />
+                            <text x="20" y="90" class="svg-label-bold">User</text>
+                        </g>
+
+                        <!-- Central AI Node -->
+                        <g transform="translate(1062, 270)">
+                            <circle cx="0" cy="0" r="55" class="pulse" />
+                            <circle cx="0" cy="0" r="50" fill="url(#grad-agent)" stroke="#d35400" stroke-width="3" />
+                            <text x="0" y="-5" class="svg-label-bold" style="font-size:16px; fill: white;">AI</text>
+                            <text x="0" y="15" class="svg-label-bold" style="font-size:16px; fill: white;">Agent</text>
+                        </g>
+
+                        <!-- Request Line -->
+                        <line x1="882" y1="265" x2="1002" y2="265" stroke="#f5821f" stroke-width="2"
+                            marker-end="url(#arrow-orange)" />
+                        <rect x="897" y="240" width="100" height="20" rx="4" class="bubble-rect" />
+                        <text x="947" y="254" class="bubble-text" text-anchor="middle">"Cheesecake Help?"</text>
+
+                        <!-- Response Line -->
+                        <path d="M1012,285 C972,340 922,340 882,285" fill="none" stroke="#f5821f" stroke-width="2"
+                            marker-end="url(#arrow-orange)" />
+                        <rect x="902" y="320" width="110" height="20" rx="4" fill="#4d3015" stroke="#f5821f" />
+                        <text x="957" y="334" class="bubble-text" text-anchor="middle" fill="#f5821f">"Beyond
+                            recipe..."</text>
+
+                        <!-- Bottom Tool -->
+                        <line x1="1062" y1="325" x2="1062" y2="440" stroke="#555" stroke-width="2"
+                            marker-end="url(#arrow-orange)" />
+                        <g transform="translate(1037, 450)">
+                            <circle cx="25" cy="25" r="30" fill="#2c2c2c" stroke="#f5821f" stroke-width="2" />
+                            <path d="M15,20 A10,4 0 0,0 35,20 A10,4 0 0,0 15,20 M15,20 L15,35 A10,4 0 0,0 35,35 L35,20"
+                                fill="none" stroke="#f5821f" stroke-width="2" />
+                            <text x="25" y="72" class="svg-label-tool" style="text-anchor: middle;">Recipe &</text>
+                            <text x="25" y="86" class="svg-label-tool" style="text-anchor: middle;">Knowledge
+                                Base</text>
+                        </g>
+
+                        <!-- Right Tools -->
+                        <g transform="translate(100, 0)"> <!-- Shift tools slightly -->
+                            <!-- Grocery -->
+                            <path d="M1007,250 C1062,250 1092,130 1127,130" fill="none" stroke="#555" stroke-width="2"
+                                marker-end="url(#arrow-orange)" />
+                            <g transform="translate(1132, 105)">
+                                <circle cx="25" cy="25" r="30" fill="#2c2c2c" stroke="#2ecc71" stroke-width="2" />
+                                <path d="M12,15 L17,15 L22,35 L38,35 L43,15 M17,15 L22,10" stroke="#2ecc71"
+                                    stroke-width="2" fill="none" />
+                                <text x="65" y="20" class="svg-label-tool">Grocery</text>
+                                <text x="65" y="36" class="svg-label-tool">Shopping</text>
+                            </g>
+
+                            <!-- Payment -->
+                            <path d="M1012,260 C1062,260 1092,220 1127,220" fill="none" stroke="#555" stroke-width="2"
+                                marker-end="url(#arrow-orange)" />
+                            <g transform="translate(1132, 195)">
+                                <circle cx="25" cy="25" r="30" fill="#2c2c2c" stroke="#f1c40f" stroke-width="2" />
+                                <rect x="12" y="18" width="26" height="18" rx="2" fill="none" stroke="#f1c40f"
+                                    stroke-width="2" />
+                                <line x1="12" y1="24" x2="38" y2="24" stroke="#f1c40f" stroke-width="2" />
+                                <text x="65" y="20" class="svg-label-tool">Payment</text>
+                                <text x="65" y="36" class="svg-label-tool">Processing</text>
+                            </g>
+
+                            <!-- Calendar -->
+                            <path d="M1012,280 C1062,280 1092,310 1127,310" fill="none" stroke="#555" stroke-width="2"
+                                marker-end="url(#arrow-orange)" />
+                            <g transform="translate(1132, 285)">
+                                <circle cx="25" cy="25" r="30" fill="#2c2c2c" stroke="#3498db" stroke-width="2" />
+                                <rect x="13" y="15" width="24" height="20" rx="2" fill="none" stroke="#3498db"
+                                    stroke-width="2" />
+                                <line x1="18" y1="12" x2="18" y2="18" stroke="#3498db" stroke-width="2" />
+                                <line x1="32" y1="12" x2="32" y2="18" stroke="#3498db" stroke-width="2" />
+                                <text x="65" y="20" class="svg-label-tool">Calendar</text>
+                                <text x="65" y="36" class="svg-label-tool">& Events</text>
+                            </g>
+
+                            <!-- Visual Aid -->
+                            <path d="M1002,290 C1052,310 1092,400 1127,400" fill="none" stroke="#555" stroke-width="2"
+                                marker-end="url(#arrow-orange)" />
+                            <g transform="translate(1132, 375)">
+                                <circle cx="25" cy="25" r="30" fill="#2c2c2c" stroke="#e056fd" stroke-width="2" />
+                                <rect x="13" y="15" width="24" height="20" fill="none" stroke="#e056fd"
+                                    stroke-width="1.5" />
+                                <path d="M13,30 L20,22 L28,28 L32,24 L37,35" fill="none" stroke="#e056fd"
+                                    stroke-width="1.5" />
+                                <text x="65" y="20" class="svg-label-tool">Visual Aid</text>
+                                <text x="65" y="36" class="svg-label-tool">Generation</text>
+                            </g>
+                        </g>
+
+                    </g>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * Navigation Logic
+         * Step 0: Title appears (on load)
+         * Step 1: Divider Line appears
+         * Step 2: Left Side (Chatbot) fades in
+         * Step 3: Right Side (Agent) fades in
+         */
+
+        let currentStep = 0;
+        const maxSteps = 3;
+
+        // Elements
+        const titleEl = document.getElementById('title');
+        const dividerEl = document.getElementById('divider-line');
+        const leftGroupEl = document.getElementById('left-group');
+        const rightGroupEl = document.getElementById('right-group');
+
+        function updateView() {
+            // Step 0: Title (Always show after tiny delay on load)
+            setTimeout(() => {
+                titleEl.classList.add('visible');
+            }, 100);
+
+            // Step 1: Divider
+            if (currentStep >= 1) {
+                dividerEl.classList.add('show');
+            } else {
+                dividerEl.classList.remove('show');
+            }
+
+            // Step 2: Left Side
+            if (currentStep >= 2) {
+                leftGroupEl.classList.add('show');
+            } else {
+                leftGroupEl.classList.remove('show');
+            }
+
+            // Step 3: Right Side
+            if (currentStep >= 3) {
+                rightGroupEl.classList.add('show');
+            } else {
+                rightGroupEl.classList.remove('show');
+            }
+        }
+
+        function next() {
+            if (currentStep < maxSteps) {
+                currentStep++;
+                updateView();
+            }
+        }
+
+        function prev() {
+            if (currentStep > 0) {
+                currentStep--;
+                updateView();
+            }
+        }
+
+        // Key Navigation
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Enter') next();
+            if (e.key === 'ArrowLeft') prev();
+        });
+
+        // Initial trigger
+        window.onload = () => {
+            updateView();
+            reportState();
+        };
+
+        // Message communication for unified deck
+        window.addEventListener('message', (e) => {
+            if (e.data === 'next') next();
+            if (e.data === 'prev') prev();
+        });
+
+        function reportState() {
+            window.parent.postMessage({
+                type: 'slideState',
+                currentStep: currentStep,
+                totalSteps: maxSteps
+            }, '*');
+        }
+
+        // Update view to also report state
+        const originalUpdateView = updateView;
+        updateView = function () {
+            originalUpdateView();
+            reportState();
+        };
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Agent Identity - Cover</title>
+    <style>
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('images/cheesecake-background.png');
+            /* Local Fallback */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        /* Attempt to load remote, will overlay if successful, but we'll handle better in JS if needed */
+        /* Actually, let's use a simpler CSS approach and then a JS enhancement */
+        .background.remote-loaded {
+            background-image: url('https://github.com/ayshsandu/ai-agent-identity-presentation/blob/main/images/cheesecake-background.png?raw=true');
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="background"></div>
+    <div class="overlay"></div>
+
+    <script>
+        // Check for remote background image
+        const remoteBg = 'https://github.com/ayshsandu/ai-agent-identity-presentation/blob/main/images/cheesecake-background.png?raw=true';
+        const img = new Image();
+        img.onload = function () {
+            document.querySelector('.background').classList.add('remote-loaded');
+        };
+        img.src = remoteBg;
+
+        // Inform parent controller about state
+        function reportState() {
+            window.parent.postMessage({
+                type: 'slideState',
+                currentStep: 0,
+                totalSteps: 0
+            }, '*');
+        }
+
+        window.onload = reportState;
+
+        // Message communication for unified deck
+        window.addEventListener('message', (e) => {
+            // No internal steps
+        });
+    </script>
+</body>
+
+</html>

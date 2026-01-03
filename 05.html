@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>What's at Risk? - Agentic Era</title>
+    <style>
+        :root {
+            --bg-color: #1a1a1a;
+            --text-white: #ffffff;
+            --accent-orange: #f5821f;
+            /* Updated to match previous slide */
+            --text-dim: #b3b3b3;
+            --transition-speed: 0.6s;
+        }
+
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-color);
+            color: var(--text-white);
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            overflow: hidden;
+            cursor: none;
+            /* Hidden cursor as requested */
+        }
+
+        .presentation-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity var(--transition-speed) ease-in-out;
+            padding: 60px;
+            box-sizing: border-box;
+        }
+
+        .slide.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Title Section Style from Slide 3 */
+        .title-section {
+            margin-bottom: 60px;
+            opacity: 0;
+            transform: translateY(-30px);
+            transition: all 0.8s ease-out;
+            width: 100%;
+        }
+
+        .title-section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .title-section h1 {
+            font-size: 56px;
+            font-weight: 700;
+            color: #ffffff;
+            margin: 0;
+            padding-left: 20px;
+            border-left: 8px solid #ff8c00;
+            line-height: 1.2;
+            text-align: left;
+        }
+
+        .title-orange {
+            color: #ff8c00;
+        }
+
+        /* Risk Grid Layout */
+        .risk-grid {
+            display: flex;
+            justify-content: center;
+            /* Center horizontally */
+            align-items: flex-start;
+            gap: 40px;
+            width: 100%;
+            flex-wrap: wrap;
+            margin-top: 40px;
+        }
+
+        /* Individual Risk Item */
+        .risk-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            width: 160px;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .risk-item.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* SVG Icon Container */
+        .icon-container {
+            width: 100px;
+            height: 100px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 25px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+
+        .risk-item.show .icon-container {
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Text Styling */
+        .risk-text {
+            font-size: 1.2rem;
+            line-height: 1.4;
+            color: var(--text-dim);
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .risk-item.show .risk-text {
+            color: var(--text-white);
+        }
+
+        /* SVG Specific Styling */
+        svg {
+            width: 60px;
+            height: 60px;
+            display: block;
+            overflow: visible;
+        }
+
+        /* Highlight the most recently revealed item slightly */
+        .risk-item.current-focus .icon-container {
+            border-color: var(--accent-orange);
+            transform: scale(1.1);
+        }
+
+        .risk-item.current-focus .risk-text {
+            color: var(--accent-orange);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="presentation-container">
+        <!-- Slide 1 (Risk Slide) -->
+        <div class="slide active" id="slide-risk">
+
+            <!-- Step 0: Title -->
+            <div class="title-section" id="title">
+                <h1>
+                    What's at <span class="title-orange">Risk?</span>
+                </h1>
+            </div>
+
+            <div class="risk-grid">
+
+                <!-- 1. Unauthorized Data Access -->
+                <div class="risk-item" id="risk-0">
+                    <div class="icon-container">
+                        <svg viewBox="0 0 64 64">
+                            <path d="M32 58 C10 50 4 35 4 12 L32 4 L60 12 C60 35 54 50 32 58 Z" fill="none"
+                                stroke="#f5821f" stroke-width="2" />
+                            <path d="M32 58 C10 50 4 35 4 12 L32 4 L60 12 C60 35 54 50 32 58 Z" fill="#f5821f"
+                                opacity="0.1" />
+                            <rect x="22" y="24" width="20" height="16" rx="2" fill="#1a1a1a" stroke="#ffffff"
+                                stroke-width="2" />
+                            <path d="M26 24 V18 A6 6 0 0 1 38 18 V24" stroke="#ffffff" stroke-width="2" fill="none" />
+                            <circle cx="32" cy="32" r="2" fill="#ffffff" />
+                            <path d="M50 40 C44 38 42 32 42 28 L50 26 L58 28 C58 32 56 38 50 40 Z" fill="#1a1a1a"
+                                stroke="#ffffff" stroke-width="2" />
+                            <path d="M50 30 V36 M47 32 H53" stroke="#ffffff" stroke-width="2" />
+                        </svg>
+                    </div>
+                    <div class="risk-text">Unauthorized<br>Data Access</div>
+                </div>
+
+                <!-- 2. Privilege Escalation -->
+                <div class="risk-item" id="risk-1">
+                    <div class="icon-container">
+                        <svg viewBox="0 0 64 64">
+                            <rect x="10" y="20" width="30" height="26" rx="5" fill="none" stroke="#ffffff"
+                                stroke-width="2" />
+                            <line x1="8" y1="30" x2="10" y2="30" stroke="#ffffff" stroke-width="2" />
+                            <line x1="40" y1="30" x2="42" y2="30" stroke="#ffffff" stroke-width="2" />
+                            <path d="M20 40 Q25 43 30 40" stroke="#ffffff" stroke-width="2" fill="none" />
+                            <path d="M18 14 L25 6 L32 14 M25 6 L25 20" stroke="#f5821f" stroke-width="2" fill="none" />
+                            <circle cx="50" cy="48" r="10" fill="none" stroke="#f5821f" stroke-width="2" />
+                            <text x="47" y="54" font-family="Arial" font-weight="bold" font-size="14"
+                                fill="#f5821f">?</text>
+                            <path d="M42 24 H50 V32 H58" stroke="#f5821f" stroke-width="2" fill="none" />
+                        </svg>
+                    </div>
+                    <div class="risk-text">Privilege<br>Escalation</div>
+                </div>
+
+                <!-- 3. Untracked Actions -->
+                <div class="risk-item" id="risk-2">
+                    <div class="icon-container">
+                        <svg viewBox="0 0 64 64">
+                            <rect x="16" y="8" width="32" height="40" rx="2" fill="#f5821f" stroke="none"
+                                opacity="0.2" />
+                            <rect x="16" y="8" width="32" height="40" rx="2" fill="none" stroke="#f5821f"
+                                stroke-width="2" />
+                            <rect x="12" y="12" width="36" height="44" rx="2" fill="#1a1a1a" stroke="#ffffff"
+                                stroke-width="2" />
+                            <circle cx="22" cy="24" r="4" stroke="#ffffff" stroke-width="2" fill="none" />
+                            <line x1="32" y1="22" x2="44" y2="22" stroke="#ffffff" stroke-width="2" />
+                            <line x1="32" y1="28" x2="44" y2="28" stroke="#ffffff" stroke-width="2" />
+                            <line x1="18" y1="40" x2="44" y2="40" stroke="#ffffff" stroke-width="2" />
+                            <path d="M50 56 C38 52 36 40 36 34 L48 30 L60 34 C60 40 58 52 50 56 Z" fill="#1a1a1a"
+                                stroke="#ffffff" stroke-width="2" />
+                            <path d="M48 38 V46 M48 48 V50" stroke="#f5821f" stroke-width="2" />
+                        </svg>
+                    </div>
+                    <div class="risk-text">Untracked<br>Actions</div>
+                </div>
+
+                <!-- 4. Impersonation Attacks -->
+                <div class="risk-item" id="risk-3">
+                    <div class="icon-container">
+                        <svg viewBox="0 0 64 64">
+                            <g opacity="0.3">
+                                <circle cx="22" cy="24" r="9" fill="none" stroke="#ffffff" stroke-width="2" />
+                                <path d="M8 46 Q22 36 36 46 V54 H8 Z" fill="none" stroke="#ffffff" stroke-width="2" />
+                            </g>
+                            <rect x="36" y="20" width="20" height="18" rx="4" fill="#1a1a1a" stroke="#ffffff"
+                                stroke-width="2" />
+                            <line x1="34" y1="26" x2="36" y2="26" stroke="#ffffff" stroke-width="2" />
+                            <line x1="56" y1="26" x2="58" y2="26" stroke="#ffffff" stroke-width="2" />
+                            <circle cx="42" cy="26" r="2" fill="#f5821f" />
+                            <circle cx="50" cy="26" r="2" fill="#f5821f" />
+                            <path d="M36 46 Q46 38 56 46 V54 H36 Z" fill="#1a1a1a" stroke="#ffffff" stroke-width="2" />
+                            <rect x="44" y="44" width="10" height="6" fill="#f5821f" stroke="none" />
+                            <path d="M10 16 Q4 22 10 28" stroke="#f5821f" stroke-width="2" fill="none" />
+                            <path d="M14 18 Q10 22 14 26" stroke="#f5821f" stroke-width="2" fill="none" />
+                        </svg>
+                    </div>
+                    <div class="risk-text">Impersonation<br>Attacks</div>
+                </div>
+
+                <!-- 5. Compliance Violations -->
+                <div class="risk-item" id="risk-4">
+                    <div class="icon-container">
+                        <svg viewBox="0 0 64 64">
+                            <rect x="14" y="10" width="36" height="44" rx="2" fill="none" stroke="#ffffff"
+                                stroke-width="2" />
+                            <line x1="22" y1="18" x2="42" y2="18" stroke="#ffffff" stroke-width="2" />
+                            <line x1="22" y1="24" x2="42" y2="24" stroke="#ffffff" stroke-width="2" />
+                            <line x1="22" y1="30" x2="32" y2="30" stroke="#ffffff" stroke-width="2" />
+                            <rect x="38" y="32" width="20" height="6" transform="rotate(45 48 35)" fill="#f5821f"
+                                stroke="none" />
+                            <rect x="30" y="46" width="18" height="10" transform="rotate(45 39 51)" fill="#f5821f"
+                                stroke="none" />
+                            <rect x="38" y="32" width="20" height="6" transform="rotate(45 48 35)" fill="none"
+                                stroke="#ffffff" stroke-width="2" />
+                            <rect x="30" y="46" width="18" height="10" transform="rotate(45 39 51)" fill="none"
+                                stroke="#ffffff" stroke-width="2" />
+                            <circle cx="24" cy="46" r="8" fill="#1a1a1a" stroke="#ffffff" stroke-width="2" />
+                            <path d="M20 42 L28 50 M28 42 L20 50" stroke="#f5821f" stroke-width="2" />
+                        </svg>
+                    </div>
+                    <div class="risk-text">Compliance<br>Violations</div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * Logic: 
+         * Step 0: Only Title
+         * Step 1: Reveal Risk 1
+         * Step 2: Reveal Risk 2
+         * ...
+         * Step 5: Reveal Risk 5
+         */
+
+        let currentStep = 0;
+        const maxSteps = 5; // 5 Items
+        const riskItems = document.querySelectorAll('.risk-item');
+        const titleSection = document.getElementById('title');
+
+        function updateView() {
+            if (currentStep >= 0) {
+                titleSection.classList.add('visible');
+            }
+
+            riskItems.forEach((item, index) => {
+                // Reveal item if index is less than currentStep
+                if (index < currentStep) {
+                    item.classList.add('show');
+                } else {
+                    item.classList.remove('show');
+                }
+
+                // Optional: Highlight the specific item being discussed (the last one revealed)
+                if (index === currentStep - 1) {
+                    item.classList.add('current-focus');
+                } else {
+                    item.classList.remove('current-focus');
+                }
+            });
+        }
+
+        function next() {
+            if (currentStep < maxSteps) {
+                currentStep++;
+                updateView();
+            }
+        }
+
+        function prev() {
+            if (currentStep > 0) {
+                currentStep--;
+                updateView();
+            }
+        }
+
+        // Key Navigation
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Enter') next();
+            if (e.key === 'ArrowLeft') prev();
+        });
+
+        // Initial trigger
+        window.onload = () => {
+            updateView();
+            reportState();
+        };
+
+        // Message communication for unified deck
+        window.addEventListener('message', (e) => {
+            if (e.data === 'next') next();
+            if (e.data === 'prev') prev();
+        });
+
+        function reportState() {
+            window.parent.postMessage({
+                type: 'slideState',
+                currentStep: currentStep,
+                totalSteps: maxSteps
+            }, '*');
+        }
+
+        // Update view to also report state
+        const originalUpdateView = updateView;
+        updateView = function () {
+            originalUpdateView();
+            reportState();
+        };
+    </script>
+</body>
+
+</html>

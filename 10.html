@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Agent Ecosystem & Interactions</title>
+    <style>
+        :root {
+            --bg-color: #1a1a1a;
+            --text-white: #ffffff;
+            --accent-orange: #f5821f;
+            --text-dim: #b3b3b3;
+            --transition-speed: 0.8s;
+        }
+
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-color);
+            color: var(--text-white);
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            overflow: hidden;
+            cursor: none;
+        }
+
+        .presentation-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            padding: 40px 60px;
+            box-sizing: border-box;
+        }
+
+        /* Title Section Style from Slide 3 */
+        .title-section {
+            margin-bottom: 20px;
+            opacity: 0;
+            transform: translateY(-30px);
+            transition: all 0.8s ease-out;
+            width: 100%;
+        }
+
+        .title-section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .title-section h1 {
+            font-size: 56px;
+            font-weight: 700;
+            color: #ffffff;
+            margin: 0;
+            padding-left: 20px;
+            border-left: 8px solid #ff8c00;
+            line-height: 1.2;
+            text-align: left;
+        }
+
+        .title-orange {
+            color: #ff8c00;
+        }
+
+        /* Content / Diagram Section */
+        .diagram-wrapper {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+        }
+
+        .diagram-wrapper.show {
+            opacity: 1;
+        }
+
+        svg {
+            width: 100%;
+            height: 100%;
+            max-height: 80vh;
+            overflow: visible;
+        }
+
+        /* --- SVG Internal Styles --- */
+
+        .box-title {
+            font-size: 16px;
+            fill: #ffffff;
+            font-weight: 600;
+            text-anchor: middle;
+        }
+
+        .sub-text {
+            font-size: 11px;
+            fill: var(--text-dim);
+            text-anchor: middle;
+        }
+
+        .title-text {
+            font-size: 14px;
+            fill: var(--text-dim);
+            font-weight: 600;
+        }
+
+        .node-text {
+            font-size: 14px;
+            fill: #eeeeee;
+            font-weight: 500;
+        }
+
+        /* Lines */
+        .connector {
+            fill: none;
+            stroke: skyblue;
+            stroke-width: 2.5;
+        }
+
+        .border-line {
+            stroke: #333;
+            stroke-width: 1;
+            fill: none;
+        }
+
+        .dashed-border {
+            stroke: #444;
+            stroke-width: 1;
+            stroke-dasharray: 4 4;
+            fill: none;
+        }
+
+        .grid-line {
+            stroke: #333;
+            stroke-width: 1;
+        }
+
+        /* Agent Boxes */
+        .agent-box-outer {
+            fill: none;
+            stroke: #ff2f00;
+            stroke-width: 4;
+            rx: 12;
+        }
+
+        .agent-box-inner {
+            fill: #2a2a2a;
+            opacity: 1;
+        }
+
+        .agent-box-2-outer {
+            fill: none;
+            stroke: #9da560;
+            stroke-width: 2;
+            rx: 12;
+        }
+
+        .agent-box-2-inner {
+            fill: #2a2a2a;
+            opacity: 1;
+        }
+
+        /* Lighter bg for contrast */
+        .agent-box-inner-teal {
+            fill: #1a2e2a;
+            opacity: 1;
+        }
+
+        .agent-icon-orange {
+            stroke: var(--accent-orange);
+            stroke-width: 3;
+            fill: none;
+            stroke-linecap: round;
+        }
+
+        .agent-icon-teal {
+            stroke: #9da560;
+            stroke-width: 3;
+            fill: none;
+            stroke-linecap: round;
+        }
+
+        /* Service Panels */
+        .service-panel {
+            fill: #252525;
+            rx: 6;
+        }
+
+        /* Input Boxes */
+        .input-box {
+            fill: #252525;
+            stroke: #444;
+        }
+
+        /* --- Administer Label Animation (Step 2) --- */
+        .admin-group {
+            opacity: 0;
+            transition: opacity 0.8s ease-out;
+        }
+
+        .diagram-wrapper.show-admin .admin-group {
+            opacity: 1;
+        }
+
+        .identity-box {
+            fill: #f5821f;
+            stroke: #ffffff;
+            stroke-width: 1.5;
+        }
+
+        .identity-text {
+            fill: #000000;
+            font-size: 11px;
+            font-weight: 700;
+            text-anchor: middle;
+        }
+
+        .admin-box {
+            fill: #f5821f;
+            stroke: #ffffff;
+            stroke-width: 2;
+            rx: 4;
+        }
+
+        .admin-text {
+            fill: #ffffff;
+            font-size: 12px;
+            font-weight: 700;
+            text-anchor: middle;
+        }
+
+        .dashed-connector {
+            fill: none;
+            stroke: #f5821f;
+            stroke-width: 2;
+            stroke-dasharray: 6 4;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="presentation-container">
+        <div class="slide">
+
+            <!-- Step 0: Title -->
+            <div class="title-section" id="title">
+                <h1><span class="title-orange">Securing</span> Interactions</h1>
+            </div>
+
+            <!-- Steps 1-3: Diagram -->
+            <div class="diagram-wrapper" id="main-diagram">
+                <svg viewBox="0 0 900 600">
+
+                    <!-- DEFS: Gradients & Markers -->
+                    <defs>
+                        <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"
+                            markerUnits="strokeWidth">
+                            <path d="M0,0 L0,6 L9,3 z" fill="skyblue" />
+                        </marker>
+                    </defs>
+
+                    <!-- ================= TOP: LLMs ================= -->
+                    <g transform="translate(300, 0)">
+                        <text x="80" y="40" class="box-title" font-size="12">LLMs / AI Models</text>
+                        <text x="80" y="55" class="sub-text">Reasoning Logic</text>
+                        <image
+                            href="https://github.com/ayshsandu/ai-agent-identity-presentation/blob/main/images/ai-model.png?raw=true"
+                            x="-20" y="-40" width="200" height="70" preserveAspectRatio="xMidYMid meet" />
+                    </g>
+
+                    <!-- ================= LEFT COLUMN (Inputs) ================= -->
+                    <line x1="80" y1="180" x2="80" y2="450" stroke="#333" stroke-width="2" />
+
+                    <!-- User -->
+                    <g transform="translate(0, 200)">
+                        <rect x="0" y="0" width="130" height="40" class="input-box" rx="2" />
+                        <circle cx="20" cy="15" r="5" fill="#5dade2" />
+                        <path d="M10 32 Q20 20 30 32" fill="#5dade2" />
+                        <text x="45" y="25" class="node-text">User</text>
+                    </g>
+
+                    <!-- Device -->
+                    <g transform="translate(0, 260)">
+                        <rect x="0" y="0" width="130" height="40" class="input-box" rx="2" />
+                        <rect x="10" y="10" width="20" height="14" stroke="#999" fill="none" stroke-width="2" />
+                        <line x1="10" y1="28" x2="30" y2="28" stroke="#999" stroke-width="2" />
+                        <text x="45" y="25" class="node-text">Device</text>
+                    </g>
+
+                    <!-- Other Agent -->
+                    <g transform="translate(0, 320)">
+                        <rect x="0" y="0" width="130" height="40" class="input-box" rx="2" />
+                        <g transform="translate(10, 10) scale(0.6)">
+                            <rect x="0" y="5" width="30" height="20" stroke="#a4c639" stroke-width="3" fill="none"
+                                rx="4" />
+                            <circle cx="8" cy="15" r="2" fill="#a4c639" />
+                            <circle cx="22" cy="15" r="2" fill="#a4c639" />
+                            <line x1="15" y1="5" x2="15" y2="0" stroke="#a4c639" stroke-width="3" />
+                        </g>
+                        <text x="45" y="25" class="node-text">Other Agent</text>
+                    </g>
+
+
+                    <!-- ================= CENTER COLUMN (Agents) ================= -->
+
+                    <!-- Connection from Inputs -->
+                    <line x1="130" y1="280" x2="280" y2="280" class="connector" marker-end="url(#arrow)" />
+
+                    <!-- Main Agent (Orange) -->
+                    <g transform="translate(280, 230)">
+                        <rect width="180" height="100" class="agent-box-outer" />
+                        <rect x="25" y="15" width="130" height="70" class="agent-box-inner" rx="4" />
+
+                        <!-- Icon -->
+                        <g transform="translate(65, 30)">
+                            <rect x="0" y="10" width="50" height="30" class="agent-icon-orange" rx="6" />
+                            <line x1="15" y1="20" x2="15" y2="28" class="agent-icon-orange" />
+                            <line x1="35" y1="20" x2="35" y2="28" class="agent-icon-orange" />
+                            <line x1="25" y1="10" x2="25" y2="0" class="agent-icon-orange" />
+                            <rect x="15" y="-4" width="20" height="4" fill="#f5821f" />
+                        </g>
+
+                        <!-- Identity Label (Step 2) -->
+                        <g class="admin-group" transform="translate(25, 5)">
+                            <rect width="70" height="20" class="identity-box" />
+                            <text x="35" y="14" class="identity-text">Identity</text>
+                        </g>
+                    </g>
+
+                    <!-- Vertical Connections -->
+                    <line x1="370" y1="230" x2="370" y2="70" class="connector" marker-end="url(#arrow)" />
+                    <line x1="370" y1="330" x2="370" y2="450" class="connector" marker-end="url(#arrow)" />
+
+                    <!-- Sub Agent (Teal) -->
+                    <g transform="translate(280, 450)">
+                        <rect width="180" height="100" class="agent-box-2-outer" stroke="#f5821f" />
+                        <rect x="25" y="15" width="130" height="70" class="agent-box-2-inner" rx="4" />
+
+                        <!-- Icon -->
+                        <g transform="translate(65, 30)">
+                            <rect x="0" y="10" width="50" height="30" class="agent-icon-teal" rx="6" />
+                            <line x1="15" y1="20" x2="15" y2="28" class="agent-icon-teal" />
+                            <line x1="35" y1="20" x2="35" y2="28" class="agent-icon-teal" />
+                            <line x1="25" y1="10" x2="25" y2="0" class="agent-icon-teal" />
+                            <rect x="15" y="-4" width="20" height="4" fill="#9da560" />
+                        </g>
+
+                        <!-- Identity Label (Step 2) -->
+                        <g class="admin-group" transform="translate(25, 5)">
+                            <rect width="70" height="20" class="identity-box" />
+                            <text x="35" y="14" class="identity-text">Identity</text>
+                        </g>
+                    </g>
+
+
+                    <!-- ================= RIGHT COLUMN (Services) ================= -->
+
+                    <!-- Connection Lines -->
+                    <line x1="460" y1="280" x2="550" y2="280" class="connector" />
+
+                    <!-- Split to Internal -->
+                    <line x1="550" y1="280" x2="550" y2="150" class="connector" />
+                    <line x1="550" y1="150" x2="680" y2="150" class="connector" marker-end="url(#arrow)" />
+
+                    <!-- Split to External -->
+                    <line x1="550" y1="280" x2="550" y2="450" class="connector" />
+                    <line x1="550" y1="450" x2="680" y2="450" class="connector" marker-end="url(#arrow)" />
+
+
+                    <!-- 1. INTERNAL SERVICES -->
+                    <text x="690" y="90" class="title-text">Internal Services</text>
+                    <rect x="690" y="100" width="200" height="150" class="service-panel" />
+
+                    <!-- Internal Icons -->
+                    <g transform="translate(710, 120)">
+                        <!-- MCPs -->
+                        <image href="images/mcp-logo.png" x="0" y="5" width="30" height="30" />
+                        <text x="0" y="50" font-size="12" fill="white">MCP Servers</text>
+
+                        <!-- APIs -->
+                        <g transform="translate(80, 0)">
+                            <image href="images/api-logo.png" x="0" y="0" width="30" height="30" />
+                            <text x="0" y="50" font-size="12" fill="white">APIs</text>
+                        </g>
+
+                        <!-- KBs -->
+                        <g transform="translate(0, 70)">
+                            <path d="M5 5 C5 2 25 2 25 5 V20 C25 23 5 23 5 20 Z" stroke="#aaa" fill="none"
+                                stroke-width="1.5" />
+                            <line x1="5" y1="10" x2="25" y2="10" stroke="#aaa" />
+                            <line x1="5" y1="15" x2="25" y2="15" stroke="#aaa" />
+                            <text x="0" y="50" font-size="12" fill="white">KBs</text>
+                        </g>
+
+                        <!-- Apps -->
+                        <g transform="translate(80, 70)">
+                            <rect x="2" y="2" width="26" height="20" stroke="white" fill="none" rx="2"
+                                stroke-width="1.5" />
+                            <rect x="5" y="5" width="6" height="6" fill="white" />
+                            <text x="0" y="45" font-size="12" fill="white">Apps</text>
+                            <text x="0" y="58" font-size="9" fill="#888">(e.g. computer use)</text>
+                        </g>
+
+                        <text x="150" y="75" fill="white" font-weight="bold">...</text>
+                    </g>
+
+
+                    <!-- 2. EXTERNAL SERVICES -->
+                    <text x="690" y="330" class="title-text">External Services</text>
+
+                    <!-- Small Connector Labels -->
+                    <g transform="translate(640, 420)">
+                        <image href="images/mcp-logo.png" x="-5" y="-10" width="20" height="20" />
+                        <text x="15" y="5" font-size="10" fill="#ddd">MCP</text>
+                    </g>
+                    <g transform="translate(640, 470)">
+                        <image href="images/api-logo.png" x="-5" y="-12" width="20" height="20" />
+                        <text x="15" y="8" font-size="10" fill="#ddd">API</text>
+                    </g>
+
+                    <!-- External Grid Box -->
+                    <g transform="translate(690, 350)">
+                        <rect width="200" height="200" class="service-panel" />
+
+                        <!-- Grid Lines -->
+                        <line x1="66" y1="0" x2="66" y2="200" class="grid-line" />
+                        <line x1="132" y1="0" x2="132" y2="200" class="grid-line" />
+                        <line x1="0" y1="50" x2="200" y2="50" class="grid-line" />
+                        <line x1="0" y1="100" x2="200" y2="100" class="grid-line" />
+                        <line x1="0" y1="150" x2="200" y2="150" class="grid-line" />
+
+                        <!-- LOGOS IN GRID -->
+
+                        <!-- 1. Gmail -->
+                        <g transform="translate(20, 15) scale(1.5)">
+                            <path
+                                d="M20.4 3.3C20.4 3.3 20.4 3.3 20.4 3.3L20.4 3.3C19.9 2.8 19.3 2.5 18.6 2.5L18.6 2.5C18.6 2.5 18.6 2.5 18.6 2.5L18.6 2.5C17.7 2.5 16.9 2.9 16.3 3.4L16.3 3.4L10.2 7.9L4.1 3.4C4.1 3.4 4.1 3.4 4.1 3.4L4.1 3.4C3.5 2.9 2.7 2.5 1.8 2.5L1.8 2.5C1.8 2.5 1.8 2.5 1.8 2.5L1.8 2.5C1.1 2.5 0.5 2.8 0 3.3L0 3.3L0 3.3L0 17.5L6.1 17.5L6.1 10.8L10.2 13.9L14.3 10.8L14.3 17.5L20.4 17.5L20.4 3.3Z"
+                                fill="#EA4335" />
+                        </g>
+
+                        <!-- 2. Drive -->
+                        <g transform="translate(80, 12)">
+                            <path d="M8.6 2.5L2.8 12.5L8.6 22.5L26.6 22.5L20.8 12.5L15 2.5L8.6 2.5Z" fill="none" />
+                            <path d="M9.9 3.8L15.3 13.1L24.3 13.1L18.9 3.8L9.9 3.8Z" fill="#FFC107" />
+                            <path d="M5.6 13.1L3.1 17.5L8.4 26.9L13.8 17.5L8.4 8.1L5.6 13.1Z"
+                                transform="translate(0,-5)" fill="#4285F4" />
+                            <path d="M9 25 L16 13 L28 13 L21 25 Z" transform="translate(-5,0)" fill="#00A651" />
+                        </g>
+
+                        <!-- 3. Sheets -->
+                        <g transform="translate(150, 12)">
+                            <rect x="0" y="0" width="18" height="24" rx="2" fill="#0F9D58" />
+                            <rect x="5" y="8" width="8" height="2" fill="white" />
+                            <rect x="5" y="12" width="8" height="2" fill="white" />
+                            <path d="M12 0 V6 H18" fill="#155D3B" opacity="0.3" />
+                        </g>
+
+                        <!-- 4. Calendar -->
+                        <g transform="translate(20, 62)">
+                            <rect x="0" y="0" width="24" height="24" rx="3" fill="#4285F4" />
+                            <text x="6" y="17" fill="white" font-weight="bold" font-size="14">31</text>
+                        </g>
+
+                        <!-- 5. Outlook -->
+                        <g transform="translate(85, 62)">
+                            <rect x="2" y="2" width="20" height="20" rx="2" fill="#0078D4" />
+                            <text x="6" y="17" fill="white" font-weight="bold" font-size="14">O</text>
+                            <path d="M12 2 L22 8 L22 18" fill="rgba(255,255,255,0.2)" />
+                        </g>
+
+                        <!-- 6. Office -->
+                        <g transform="translate(150, 62)">
+                            <path d="M4 4 L10 2 L10 22 L4 20 Z" fill="#D83B01" />
+                            <rect x="8" y="6" width="14" height="12" fill="#D83B01" />
+                            <path d="M12 6 A6 6 0 1 0 12 18 A6 6 0 1 0 12 6 M14 16 L14 8 L18 8 L18 16 Z" fill="white"
+                                transform="translate(2,0) scale(0.8)" />
+                        </g>
+
+                        <!-- 7. PayPal -->
+                        <g transform="translate(20, 110)">
+                            <text x="5" y="20" font-family="Verdana" font-weight="bold" font-size="20" fill="#003087"
+                                font-style="italic">P</text>
+                            <text x="10" y="20" font-family="Verdana" font-weight="bold" font-size="20" fill="#009cde"
+                                font-style="italic">P</text>
+                        </g>
+
+                        <!-- 8. HubSpot -->
+                        <g transform="translate(85, 115)">
+                            <circle cx="12" cy="12" r="10" fill="none" stroke="#FF7A59" stroke-width="3" />
+                            <circle cx="12" cy="12" r="3" fill="#FF7A59" />
+                            <line x1="12" y1="2" x2="12" y2="6" stroke="#FF7A59" stroke-width="3" />
+                            <line x1="22" y1="12" x2="18" y2="12" stroke="#FF7A59" stroke-width="3" />
+                            <line x1="5" y1="17" x2="8" y2="15" stroke="#FF7A59" stroke-width="3" />
+                        </g>
+
+                        <!-- 9. WhatsApp -->
+                        <g transform="translate(150, 115)">
+                            <circle cx="12" cy="12" r="12" fill="#25D366" />
+                            <path
+                                d="M8 8 C8 8 9 7 11 8 C13 9 14 10 14 11 C14 12 13 13 12 14 C11 15 10 15 8 13 C6 11 6 10 7 9"
+                                stroke="white" fill="white" stroke-width="1.5" />
+                        </g>
+
+                        <!-- 10. LinkedIn -->
+                        <g transform="translate(20, 165)">
+                            <rect x="0" y="0" width="24" height="24" rx="2" fill="#0077b5" />
+                            <text x="6" y="18" fill="white" font-weight="bold" font-family="Arial"
+                                font-size="16">in</text>
+                        </g>
+
+                        <!-- 11. X (Twitter) -->
+                        <g transform="translate(85, 165)">
+                            <path d="M2 2 L22 22 M22 2 L2 22" stroke="white" stroke-width="3" />
+                            <path d="M18 5 L22 0 H18 L14 5 L18 5 Z" fill="white" />
+                        </g>
+
+                        <!-- 12. GitHub -->
+                        <g transform="translate(150, 165)">
+                            <path
+                                d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12"
+                                fill="white" />
+                        </g>
+                    </g>
+
+
+                    <!-- ================= ADMINISTER (Step 2) ================= -->
+                    <g class="admin-group">
+                        <!-- Administer Box -->
+                        <g transform="translate(200, 110)">
+                            <rect width="80" height="25" class="admin-box" />
+                            <text x="40" y="17" class="admin-text">Administer</text>
+                        </g>
+
+                        <!-- Dashed Lines -->
+                        <!-- To Top Agent Identity -->
+                        <path d="M240 135 C240 180 280 220 305 235" class="dashed-connector"
+                            marker-end="url(#arrow-orange-small)" />
+                        <!-- To Bottom Agent Identity -->
+                        <path d="M240 135 C240 300 280 430 305 455" class="dashed-connector"
+                            marker-end="url(#arrow-orange-small)" />
+                    </g>
+
+                    <!-- New Arrow Marker for Dashed Lines -->
+                    <defs>
+                        <marker id="arrow-orange-small" markerWidth="6" markerHeight="6" refX="5" refY="3"
+                            orient="auto">
+                            <path d="M0,0 L0,6 L6,3 z" fill="#f5821f" />
+                        </marker>
+                    </defs>
+
+
+                    <!-- ================= AUTHENTICATE BOXES (Step 3) ================= -->
+
+                    <!-- Left Authenticate -->
+                    <g class="auth-label-1" transform="translate(160, 253)">
+                        <rect width="110" height="54" rx="4" fill="#f5821f" />
+                        <text x="55" y="16" text-anchor="middle" fill="#ffffff" font-weight="700" font-size="11">
+                            <tspan x="55" dy="0">Authenticate</tspan>
+                            <tspan x="55" dy="14">Authorize</tspan>
+                            <tspan x="55" dy="14">Audit</tspan>
+                        </text>
+                    </g>
+
+                    <!-- Top Authenticate -->
+                    <g class="auth-label-1" transform="translate(325, 115)">
+                        <rect width="110" height="54" rx="4" fill="#f5821f" />
+                        <text x="55" y="16" text-anchor="middle" fill="#ffffff" font-weight="700" font-size="11">
+                            <tspan x="55" dy="0">Authenticate</tspan>
+                            <tspan x="55" dy="14">Authorize</tspan>
+                            <tspan x="55" dy="14">Audit</tspan>
+                        </text>
+                    </g>
+
+                    <!-- Right Authenticate -->
+                    <g class="auth-label-1" transform="translate(485, 253)">
+                        <rect width="110" height="54" rx="4" fill="#f5821f" />
+                        <text x="55" y="16" text-anchor="middle" fill="#ffffff" font-weight="700" font-size="11">
+                            <tspan x="55" dy="0">Authenticate</tspan>
+                            <tspan x="55" dy="14">Authorize</tspan>
+                            <tspan x="55" dy="14">Audit</tspan>
+                        </text>
+                    </g>
+
+                    <!-- Bottom Authenticate (Between Agents) -->
+                    <g class="auth-label-1" transform="translate(325, 358)">
+                        <rect width="110" height="54" rx="4" fill="#f5821f" />
+                        <text x="55" y="16" text-anchor="middle" fill="#ffffff" font-weight="700" font-size="11">
+                            <tspan x="55" dy="0">Authenticate</tspan>
+                            <tspan x="55" dy="14">Authorize</tspan>
+                            <tspan x="55" dy="14">Audit</tspan>
+                        </text>
+                    </g>
+
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        /* Re-adding the auth-label-1 style since it was removed in the first chunk */
+        .auth-label-1 {
+            opacity: 0;
+            transition: opacity 0.5s ease-out;
+            cursor: default;
+        }
+
+        .diagram-wrapper.show-auth .auth-label-1 {
+            opacity: 1;
+        }
+
+        /* New styles for Administer box and dashed lines */
+        .admin-group {
+            opacity: 0;
+            transition: opacity 0.5s ease-out;
+        }
+
+        .diagram-wrapper.show-admin .admin-group {
+            opacity: 1;
+        }
+
+        .admin-box {
+            fill: #f5821f;
+            stroke: #f5821f;
+            stroke-width: 1;
+            rx: 4;
+        }
+
+        .admin-text {
+            fill: #ffffff;
+            font-weight: 700;
+            font-size: 11px;
+            text-anchor: middle;
+        }
+
+        .dashed-connector {
+            stroke: #f5821f;
+            stroke-width: 2;
+            stroke-dasharray: 4 2;
+            fill: none;
+        }
+    </style>
+
+    <script>
+        /**
+         * Navigation Logic
+         * Step 0: Title fades down.
+         * Step 1: Diagram fades in.
+         * Step 2: Administer Labels fade in.
+         * Step 3: Authenticate Boxes fade in.
+         */
+
+        let currentStep = 0;
+        const maxSteps = 3; // 0, 1, 2, 3
+
+        const titleEl = document.getElementById('title');
+        const diagramEl = document.getElementById('main-diagram');
+
+        function updateView() {
+            // Step 0: Title (Always show after tiny delay on load)
+            setTimeout(() => {
+                titleEl.classList.add('visible');
+            }, 100);
+
+            // Step 1: Diagram
+            if (currentStep >= 1) {
+                diagramEl.classList.add('show');
+            } else {
+                diagramEl.classList.remove('show');
+            }
+
+            // Step 2: Administer Labels
+            if (currentStep >= 2) {
+                diagramEl.classList.add('show-admin');
+            } else {
+                diagramEl.classList.remove('show-admin');
+            }
+
+            // Step 3: Authenticate Boxes
+            if (currentStep >= 3) {
+                diagramEl.classList.add('show-auth');
+            } else {
+                diagramEl.classList.remove('show-auth');
+            }
+        }
+
+        function next() {
+            if (currentStep < maxSteps) {
+                currentStep++;
+                updateView();
+            }
+        }
+
+        function prev() {
+            if (currentStep > 0) {
+                currentStep--;
+                updateView();
+            }
+        }
+
+        // Key Navigation
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Enter') next();
+            if (e.key === 'ArrowLeft') prev();
+        });
+
+        // Initial trigger
+        window.onload = () => {
+            updateView();
+            reportState();
+        };
+
+        // Message communication for unified deck
+        window.addEventListener('message', (e) => {
+            if (e.data === 'next') next();
+            if (e.data === 'prev') prev();
+        });
+
+        function reportState() {
+            window.parent.postMessage({
+                type: 'slideState',
+                currentStep: currentStep,
+                totalSteps: maxSteps
+            }, '*');
+        }
+
+        // Update view to also report state
+        const originalUpdateView = updateView;
+        updateView = function () {
+            originalUpdateView();
+            reportState();
+        };
+    </script>
+</body>
+
+</html>

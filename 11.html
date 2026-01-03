@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TasteMakers Architecture - Detailed</title>
+    <style>
+        :root {
+            /* Presentation Theme */
+            --bg-color: #1a1a1a;
+            --text-white: #ffffff;
+            --accent-orange: #f5821f;
+            --text-dim: #b3b3b3;
+            --transition-speed: 0.6s;
+
+            /* Component Color Palette */
+            --ai-purple: #d63384;
+            --gw-orange: #f5821f;
+            --res-teal: #00d2d3;
+            --web-blue: #388bfd;
+            --bot-pink: #ee160c;
+            --ext-green: #3fb950;
+            --iam-orange: #db6d28;
+            --track-color: #30363d;
+
+            /* Gateway Styling */
+            --gw-border: #f5821f;
+            --gw-fill: #252525;
+            --gw-glow: rgba(245, 130, 31, 0.4);
+        }
+
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-color);
+            color: var(--text-white);
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            overflow: hidden;
+            cursor: none;
+        }
+
+        .presentation-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            padding: 20px 40px;
+            box-sizing: border-box;
+        }
+
+        /* Title Section Style from Slide 3 */
+        .title-section {
+            margin-bottom: 20px;
+            opacity: 0;
+            transform: translateY(-30px);
+            transition: all 0.8s ease-out;
+            width: 100%;
+        }
+
+        .title-section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .title-section h1 {
+            font-size: 56px;
+            font-weight: 700;
+            color: #ffffff;
+            margin: 0;
+            padding-left: 20px;
+            border-left: 8px solid #ff8c00;
+            line-height: 1.2;
+            text-align: left;
+        }
+
+        .title-orange {
+            color: #ff8c00;
+        }
+
+        /* Diagram Wrapper */
+        .diagram-wrapper {
+            flex-grow: 1;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+            position: relative;
+        }
+
+        .diagram-wrapper.show {
+            opacity: 1;
+        }
+
+        svg {
+            width: 100%;
+            height: 100%;
+            max-height: 90vh;
+            overflow: visible;
+        }
+
+        /* --- SVG Typography --- */
+        .title {
+            font-size: 18px;
+            font-weight: 700;
+            fill: var(--text-white);
+            text-anchor: middle;
+            dominant-baseline: middle;
+        }
+
+        .label {
+            font-size: 15px;
+            font-weight: 500;
+            fill: var(--text-dim);
+            text-anchor: middle;
+            dominant-baseline: middle;
+        }
+
+        .node-text {
+            font-size: 16px;
+            font-weight: 600;
+            fill: var(--text-white);
+            dominant-baseline: middle;
+        }
+
+        .text-gw {
+            fill: #ffffff;
+            font-size: 14px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            text-anchor: middle;
+            dominant-baseline: middle;
+        }
+
+        /* --- SVG Styles --- */
+        .box-base {
+            stroke-width: 2;
+            rx: 6;
+        }
+
+        .box-ai {
+            fill: rgba(214, 51, 132, 0.1);
+            stroke: var(--ai-purple);
+        }
+
+        .box-ai-dashed {
+            fill: none;
+            stroke: var(--ai-purple);
+            stroke-dasharray: 6 4;
+        }
+
+        .box-bot-dashed {
+            fill: none;
+            stroke: #ee160c;
+            stroke-dasharray: 6 4;
+        }
+
+        .box-web {
+            fill: rgba(56, 139, 253, 0.15);
+            stroke: var(--web-blue);
+        }
+
+        .box-web-dashed {
+            fill: none;
+            stroke: var(--web-blue);
+            stroke-dasharray: 6 4;
+        }
+
+        .box-bot {
+            fill: rgba(248, 81, 73, 0.15);
+            stroke: var(--bot-pink);
+        }
+
+        .box-bot-dashed {
+            fill: none;
+            stroke: var(--bot-pink);
+            stroke-dasharray: 6 4;
+        }
+
+        .box-res {
+            fill: rgba(0, 210, 211, 0.1);
+            stroke: var(--res-teal);
+        }
+
+        .box-res-dashed {
+            fill: none;
+            stroke: var(--res-teal);
+            stroke-dasharray: 6 4;
+        }
+
+        .box-ext {
+            fill: rgba(63, 185, 80, 0.15);
+            stroke: var(--ext-green);
+        }
+
+        .box-ext-dashed {
+            fill: none;
+            stroke: var(--ext-green);
+            stroke-dasharray: 6 4;
+        }
+
+        .box-iam {
+            fill: rgba(219, 109, 40, 0.2);
+            stroke: var(--iam-orange);
+        }
+
+        .gateway-unified {
+            fill: var(--gw-fill);
+            stroke: var(--gw-border);
+            stroke-width: 3;
+            rx: 4;
+            filter: drop-shadow(0 0 8px var(--gw-glow));
+            transition: all 0.5s ease;
+        }
+
+        /* --- Animations --- */
+        .track {
+            fill: none;
+            stroke: var(--track-color);
+            stroke-width: 4;
+            stroke-linecap: round;
+            transition: stroke 0.3s ease;
+        }
+
+        .packet {
+            fill: none;
+            stroke-width: 3;
+            stroke-linecap: round;
+            stroke-dasharray: 60 400;
+            animation: flowPacket 3s linear infinite;
+            transition: stroke-width 0.3s ease;
+        }
+
+        @keyframes flowPacket {
+            to {
+                stroke-dashoffset: -460;
+            }
+        }
+
+        .pkt-blue {
+            stroke: var(--web-blue);
+        }
+
+        .pkt-orange {
+            stroke: var(--iam-orange);
+        }
+
+        .pkt-green {
+            stroke: var(--ext-green);
+        }
+
+        .pkt-teal {
+            stroke: var(--res-teal);
+        }
+
+        .pkt-red {
+            stroke: #ee160c;
+        }
+
+        /* --- Highlight Logic --- */
+        .highlightable {
+            transition: all 0.5s ease;
+            opacity: 1;
+        }
+
+        /* Focus Mode: Dim everything */
+        .diagram-wrapper.focus-mode .highlightable {
+            opacity: 0.1;
+            filter: grayscale(100%);
+        }
+
+        /* Focus Mode: Highlight Active */
+        .diagram-wrapper.focus-mode .highlightable.active {
+            opacity: 1;
+            filter: none;
+        }
+
+        /* Scaling effect for active elements */
+        .diagram-wrapper.focus-mode g.highlightable.active:not([id^="l-"]),
+        .diagram-wrapper.focus-mode rect.highlightable.active {
+            transform: scale(1.02);
+            transform-box: fill-box;
+            transform-origin: center;
+        }
+
+        /* Highlight Lines */
+        .diagram-wrapper.focus-mode .highlightable.active .track {
+            stroke: #555;
+            stroke-width: 4px;
+        }
+
+        /* Text Transitions */
+        .text-swap {
+            transition: opacity 1s ease;
+        }
+
+        .fill-swap {
+            transition: fill 1s ease, stroke 1s ease;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="presentation-container">
+        <div class="slide">
+
+            <!-- Step 0: Title -->
+            <div class="title-section" id="title">
+                <h1>TasteMakers <span class="title-orange">Architecture</span></h1>
+            </div>
+
+            <!-- Diagram Wrapper -->
+            <div class="diagram-wrapper" id="diagramWrapper">
+                <!-- ZOOMED IN VIEWBOX -->
+                <svg viewBox="80 30 1050 780">
+
+                    <defs>
+                        <marker id="arrow-blue" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                            <path d="M0,0 L0,6 L9,3 z" fill="#388bfd" />
+                        </marker>
+                        <marker id="arrow-orange" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                            <path d="M0,0 L0,6 L9,3 z" fill="#db6d28" />
+                        </marker>
+                        <marker id="arrow-green" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                            <path d="M0,0 L0,6 L9,3 z" fill="#3fb950" />
+                        </marker>
+                        <marker id="arrow-teal" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                            <path d="M0,0 L0,6 L9,3 z" fill="#00d2d3" />
+                        </marker>
+                        <marker id="arrow-red" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                            <path d="M0,0 L0,6 L9,3 z" fill="#ee160c" />
+                        </marker>
+                        <linearGradient id="geminiGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#9b59b6" />
+                            <stop offset="50%" stop-color="#e056fd" />
+                            <stop offset="100%" stop-color="#686de0" />
+                        </linearGradient>
+                    </defs>
+
+                    <!-- STATIC BG ELEMENTS -->
+                    <g class="highlightable" id="bg-elements">
+                        <g transform="translate(100, 320)">
+                            <circle cx="20" cy="15" r="12" fill="#f5821f" />
+                            <path d="M5 38 Q20 20 35 38" fill="#f5821f" />
+                            <text x="20" y="65" class="title" fill="#f5821f"
+                                style="dominant-baseline: hanging; font-size: 20px;">User</text>
+                        </g>
+                        <rect x="250" y="50" width="600" height="150" class="box-base box-ai-dashed" />
+                    </g>
+
+                    <!-- CONNECTORS -->
+                    <!-- User <-> Web -->
+                    <g class="highlightable" id="l-user-web">
+                        <line x1="140" y1="325" x2="305" y2="325" class="track" />
+                        <line x1="140" y1="325" x2="305" y2="325" class="packet pkt-blue"
+                            marker-end="url(#arrow-blue)" />
+                    </g>
+
+                    <!-- Web -> ChefBot GW -->
+                    <g class="highlightable" id="l-web-gw-chef">
+                        <path d="M430 315 L600 315" class="track" />
+                        <path d="M430 315 L600 315" class="packet pkt-blue" marker-end="url(#arrow-blue)" />
+                    </g>
+
+                    <!-- ChefBot -> Resource Gateway Elbow -->
+                    <g class="highlightable" id="l-chef-gw-res">
+                        <path d="M 740 375 L 740 425 L 580 425 L 580 540 L 600 540" class="track" stroke="#ee160c" />
+                        <path d="M 740 375 L 740 425 L 580 425 L 580 540 L 600 540" class="packet pkt-red"
+                            marker-end="url(#arrow-red)" />
+                    </g>
+
+                    <!-- ChefBot -> Right GW -->
+                    <g class="highlightable" id="l-chef-gw-ext">
+                        <path d="M790 285 L890 285" class="track" stroke="#ee160c" />
+                        <path d="M790 285 L890 285" class="packet pkt-red" marker-end="url(#arrow-red)" />
+                    </g>
+
+                    <!-- Right GW -> Ext (Calendar) -->
+                    <g class="highlightable" id="l-gw-ext-cal">
+                        <path d="M920 285 L980 285" class="track" />
+                        <path d="M920 285 L980 285" class="packet pkt-green" marker-end="url(#arrow-green)" />
+                    </g>
+
+                    <!-- Web -> Res GW Line 1 -->
+                    <g class="highlightable" id="l-web-gw-res1">
+                        <path d="M430 365 L565 365 L565 510 L600 510" class="track" />
+                        <path d="M430 365 L565 365 L565 510 L600 510" class="packet pkt-blue"
+                            marker-end="url(#arrow-blue)" />
+                    </g>
+
+                    <!-- GW -> Res -->
+                    <!-- <g class="highlightable" id="l-gw-res-in">
+                        <path d="M640 500 L660 500" class="track" />
+                        <path d="M640 500 L660 500" class="packet pkt-teal" marker-end="url(#arrow-teal)" />
+                    </g> -->
+
+                    <!-- Web -> Res GW Line 2 (Shopping) -->
+                    <!-- <g class="highlightable" id="l-web-gw-res2">
+                        <path d="M430 405 L565 405 L565 600 L600 600" class="track" />
+                        <path d="M430 405 L565 405 L565 600 L600 600" class="packet pkt-blue"
+                            marker-end="url(#arrow-blue)" />
+                    </g> -->
+
+                    <!-- GW -> Shop -->
+                    <!-- <g class="highlightable" id="l-gw-shop-in">
+                        <path d="M640 580 L660 580" class="track" />
+                        <path d="M640 580 L660 580" class="packet pkt-teal" marker-end="url(#arrow-teal)" />
+                    </g> -->
+
+                    <!-- Shop -> Right GW -->
+                    <g class="highlightable" id="l-shop-gw-ext">
+                        <path d="M820 580 L850 580 L850 350 L890 350" class="track" />
+                        <path d="M820 580 L850 580 L850 350 L890 350" class="packet pkt-green" />
+                    </g>
+
+                    <!-- Right GW -> Pay -->
+                    <g class="highlightable" id="l-gw-ext-pay">
+                        <path d="M920 350 L980 350" class="track" />
+                        <path d="M920 350 L980 350" class="packet pkt-green" marker-end="url(#arrow-green)" />
+                    </g>
+
+                    <!-- ChefBot -> AI Gateway -->
+                    <g class="highlightable" id="l-chef-gw-ai">
+                        <path d="M735 265 L735 195" class="track" stroke="#ee160c" />
+                        <path d="M735 265 L735 195" class="packet pkt-red" marker-end="url(#arrow-red)" />
+                    </g>
+
+                    <!-- AI GW -> Gemini -->
+                    <g class="highlightable" id="l-ai-gemini">
+                        <line x1="560" y1="150" x2="560" y2="132" class="track" />
+                        <line x1="560" y1="150" x2="560" y2="132" class="packet pkt-blue"
+                            marker-end="url(#arrow-blue)" />
+                    </g>
+
+                    <!-- IAM Lines -->
+                    <g class="highlightable" id="l-iam-bg">
+                        <path d="M120 360 L120 725 L590 725" class="track" />
+                        <path d="M120 360 L120 725 L590 725" class="packet pkt-orange"
+                            marker-end="url(#arrow-orange)" />
+                        <path d="M808 330 L870 330 L870 720 L850 720" class="track" />
+                        <path d="M808 330 L870 330 L870 720 L850 720" class="packet pkt-orange"
+                            marker-end="url(#arrow-orange)" />
+                    </g>
+
+
+                    <!-- 1. TasteMakers (Blue) -->
+                    <g id="c-tastemakers" class="highlightable">
+                        <rect x="250" y="240" width="230" height="200" class="box-base box-web-dashed" />
+                        <rect x="305" y="255" width="125" height="165" class="box-base box-web" />
+                        <text x="367.5" y="325" class="title">TasteMakers:</text>
+                        <text x="367.5" y="345" class="label" fill="#8b949e">Web Interface</text>
+                    </g>
+
+                    <!-- 2. Resources (Teal) -->
+                    <g id="c-resources" class="highlightable">
+                        <rect x="645" y="440" width="190" height="190" class="box-base box-res-dashed" />
+
+                        <!-- Recipe Resources (Icons Removed) -->
+                        <rect x="660" y="460" width="160" height="65" class="box-base box-res" />
+                        <g transform="translate(660, 460)">
+                            <text x="80" y="32.5" class="node-text" text-anchor="middle">Recipe Resources</text>
+                        </g>
+
+                        <!-- Shopping Tools (Icons Removed) -->
+                        <rect x="660" y="550" width="160" height="65" class="box-base box-res" />
+                        <g transform="translate(660, 550)">
+                            <text x="80" y="32.5" class="node-text" text-anchor="middle">Shopping Tools</text>
+                        </g>
+                    </g>
+
+                    <!-- 3. GW - Resources -->
+                    <g id="c-gw-res" class="highlightable">
+                        <rect id="box-gw-res" x="600" y="445" width="40" height="185"
+                            class="gateway-unified fill-swap" />
+                        <text id="txt-gw-res-old" x="620" y="537.5" class="text-gw text-swap"
+                            transform="rotate(-90, 620, 537.5)">Gateway</text>
+                        <text id="txt-gw-res-new" x="620" y="537.5" class="text-gw text-swap"
+                            transform="rotate(-90, 620, 537.5)" style="opacity:0">WSO2 APIM</text>
+                    </g>
+
+                    <!-- 4. ChefBot (Pink) -->
+                    <g id="c-chefbot" class="highlightable">
+                        <rect x="650" y="240" width="180" height="175" class="box-base box-bot-dashed" />
+                        <rect x="690" y="265" width="100" height="110" class="box-base box-bot" />
+                        <text x="740" y="310" class="title">ChefBot</text>
+                        <text x="740" y="330" class="label" fill="#f85149">Assistant</text>
+                        <!-- TOOLS BOX REMOVED -->
+                    </g>
+
+                    <!-- 5. GW - Chef -->
+                    <g id="c-gw-chef" class="highlightable">
+                        <rect id="box-gw-chef" x="600" y="245" width="40" height="170"
+                            class="gateway-unified fill-swap" />
+                        <text id="txt-gw-chef-old" x="620" y="330" class="text-gw text-swap"
+                            transform="rotate(-90, 620, 330)">Gateway</text>
+                        <text id="txt-gw-chef-new" x="620" y="330" class="text-gw text-swap"
+                            transform="rotate(-90, 620, 330)" style="opacity:0">WSO2 APIM</text>
+                    </g>
+
+                    <!-- 6. Gemini (Purple) -->
+                    <g id="c-gemini" class="highlightable">
+                        <rect x="360" y="80" width="360" height="45" class="box-base box-ai" />
+                        <path transform="translate(480, 90) scale(1.2)"
+                            d="M10 0 L12 8 L20 10 L12 12 L10 20 L8 12 L0 10 L8 8 Z" fill="url(#geminiGrad)" />
+                        <text x="540" y="102.5" class="title">Gemini</text>
+                    </g>
+
+                    <!-- 7. AI Gateway -->
+                    <g id="c-ai-gw" class="highlightable">
+                        <rect id="box-ai-gw" x="320" y="150" width="480" height="35"
+                            class="gateway-unified fill-swap" />
+                        <text id="txt-ai-gw-old" x="560" y="167.5" class="title text-swap" style="fill:white;">AI
+                            Gateway</text>
+                        <text id="txt-ai-gw-new" x="560" y="167.5" class="title text-swap"
+                            style="fill:white; opacity:0">WSO2 AI Gateway</text>
+                    </g>
+
+                    <!-- 8. External (Green) -->
+                    <g id="c-external" class="highlightable">
+                        <rect x="960" y="240" width="95" height="170" class="box-base box-ext-dashed" />
+                        <!-- Calendar -->
+                        <g transform="translate(980, 260)">
+                            <rect width="40" height="40" class="box-base box-ext" />
+                            <rect x="10" y="10" width="20" height="20" fill="#4285F4" rx="2" />
+                            <text x="20" y="25" fill="white" font-weight="bold" font-size="14"
+                                style="text-anchor:middle; dominant-baseline:central;">31</text>
+                        </g>
+                        <!-- Payment -->
+                        <g transform="translate(980, 330)">
+                            <rect width="55" height="35" class="box-base box-ext" />
+                            <rect x="5" y="13" width="45" height="4" fill="#3fb950" />
+                            <circle cx="40" cy="25" r="3" fill="#f85149" opacity="0.8" />
+                            <circle cx="34" cy="25" r="3" fill="#d29922" opacity="0.8" />
+                        </g>
+                    </g>
+
+                    <!-- 9. GW - External -->
+                    <g id="c-gw-ext" class="highlightable">
+                        <rect id="box-gw-ext" x="890" y="240" width="30" height="170"
+                            class="gateway-unified fill-swap" />
+                        <text id="txt-gw-ext-old" x="905" y="325" class="text-gw text-swap"
+                            transform="rotate(-90, 905, 325)">Gateway</text>
+                        <text id="txt-gw-ext-new" x="905" y="325" class="text-gw text-swap"
+                            transform="rotate(-90, 905, 325)" style="opacity:0">WSO2 APIM</text>
+                    </g>
+
+                    <!-- 10. IAM PROVIDER (Orange) -->
+                    <g id="c-iam" class="highlightable">
+                        <rect id="box-iam" x="600" y="690" width="250" height="45" class="box-base box-iam fill-swap" />
+                        <text id="txt-iam-old" x="725" y="712.5" class="title text-swap" fill="#db6d28">IAM
+                            Provider</text>
+                        <text id="txt-iam-new" x="725" y="712.5" class="title text-swap" fill="#db6d28"
+                            style="opacity:0">WSO2 IAM</text>
+
+                        <g transform="translate(670, 755)">
+                            <g transform="translate(0,0)">
+                                <path d="M0 5 C0 2 25 2 25 5 V20 C25 23 0 23 0 20 Z" fill="#161b22" stroke="#58a6ff"
+                                    stroke-width="1.5" />
+                                <line x1="0" y1="10" x2="25" y2="10" stroke="#58a6ff" />
+                                <line x1="0" y1="15" x2="25" y2="15" stroke="#58a6ff" />
+                                <text x="12.5" y="35" class="label" fill="#db6d28">Users</text>
+                            </g>
+                            <g transform="translate(40,0)">
+                                <path d="M0 5 C0 2 25 2 25 5 V20 C25 23 0 23 0 20 Z" fill="#161b22" stroke="#58a6ff"
+                                    stroke-width="1.5" />
+                                <line x1="0" y1="10" x2="25" y2="10" stroke="#58a6ff" />
+                                <line x1="0" y1="15" x2="25" y2="15" stroke="#58a6ff" />
+                                <text x="12.5" y="35" class="label" fill="#db6d28">Apps</text>
+                            </g>
+                            <g transform="translate(80,0)">
+                                <path d="M0 5 C0 2 25 2 25 5 V20 C25 23 0 23 0 20 Z" fill="#161b22" stroke="#58a6ff"
+                                    stroke-width="1.5" />
+                                <line x1="0" y1="10" x2="25" y2="10" stroke="#58a6ff" />
+                                <line x1="0" y1="15" x2="25" y2="15" stroke="#58a6ff" />
+                                <text x="12.5" y="35" class="label" fill="#db6d28">Agents</text>
+                            </g>
+                        </g>
+                    </g>
+
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * Navigation Logic:
+         * Step 0: Title appears (auto)
+         * Step 1: Diagram appears (auto)
+         * Steps 2-11: Highlights
+         * Step 12: Base View (Reset)
+         * Step 13: IAM Text Swap
+         * Step 14: AI Gateway Text Swap
+         * Step 15: APIM Text Swap
+         */
+
+        const steps = [
+            ['c-tastemakers'], // 2
+            ['c-resources'],   // 3
+            ['c-resources', 'c-gw-res', 'l-web-gw-res1', 'l-web-gw-res2', 'l-gw-res-in', 'l-gw-shop-in'], // 4
+            ['c-chefbot'], // 5
+            ['c-chefbot', 'c-gw-chef', 'l-web-gw-chef'], // 6
+            ['c-gemini'], // 7
+            ['c-gemini', 'c-ai-gw', 'l-chef-gw-ai', 'l-ai-gemini'], // 8
+            ['c-external'], // 9
+            ['c-external', 'c-gw-ext', 'l-chef-gw-ext', 'l-shop-gw-ext', 'l-gw-ext-cal', 'l-gw-ext-pay'], // 10
+            ['c-iam', 'l-iam-bg'] // 11
+        ];
+
+        let currentStep = 0;
+        const maxSteps = 1 + steps.length + 4; // Title(0) + Diagram(1) + Steps(10) + Reset(1) + Swaps(3) = 15 total indices
+
+        // Elements
+        const titleEl = document.getElementById('title');
+        const diagramWrapper = document.getElementById('diagramWrapper');
+
+        function updateView() {
+            // Step 0: Title
+            setTimeout(() => {
+                titleEl.classList.add('visible');
+            }, 100);
+
+            // Step 1: Diagram
+            if (currentStep >= 1) {
+                diagramWrapper.classList.add('show');
+            } else {
+                diagramWrapper.classList.remove('show');
+            }
+
+            // Steps 2 - 11: Highlights
+            // Logic: highlightIndex = currentStep - 2
+            if (currentStep >= 2 && currentStep < 2 + steps.length) {
+                const highlightIndex = currentStep - 2;
+                diagramWrapper.classList.add('focus-mode');
+                document.querySelectorAll('.highlightable').forEach(el => el.classList.remove('active'));
+
+                const idsToHighlight = steps[highlightIndex];
+                idsToHighlight.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.classList.add('active');
+                });
+            }
+
+            // Step 12: Base View (Reset Highlights)
+            if (currentStep === 2 + steps.length) {
+                diagramWrapper.classList.remove('focus-mode');
+                document.querySelectorAll('.highlightable').forEach(el => el.classList.remove('active'));
+            }
+
+            // Step 13: IAM Text Swap
+            if (currentStep >= 2 + steps.length + 1) {
+                toggleText('txt-iam-old', 'txt-iam-new');
+                fillBox('box-iam', '#e67e22');
+            } else {
+                resetTextPair('txt-iam-old', 'txt-iam-new');
+                fillBox('box-iam', ''); // Reset color
+            }
+
+            // Step 14: AI Gateway Swap
+            if (currentStep >= 2 + steps.length + 2) {
+                toggleText('txt-ai-gw-old', 'txt-ai-gw-new');
+                fillBox('box-ai-gw', '#e67e22');
+            } else {
+                resetTextPair('txt-ai-gw-old', 'txt-ai-gw-new');
+                fillBox('box-ai-gw', '');
+            }
+
+            // Step 15: APIM Swap
+            if (currentStep >= 2 + steps.length + 3) {
+                toggleText('txt-gw-res-old', 'txt-gw-res-new');
+                toggleText('txt-gw-chef-old', 'txt-gw-chef-new');
+                toggleText('txt-gw-ext-old', 'txt-gw-ext-new');
+
+                fillBox('box-gw-res', '#e67e22');
+                fillBox('box-gw-chef', '#e67e22');
+                fillBox('box-gw-ext', '#e67e22');
+            } else {
+                resetTextPair('txt-gw-res-old', 'txt-gw-res-new');
+                resetTextPair('txt-gw-chef-old', 'txt-gw-chef-new');
+                resetTextPair('txt-gw-ext-old', 'txt-gw-ext-new');
+
+                fillBox('box-gw-res', '');
+                fillBox('box-gw-chef', '');
+                fillBox('box-gw-ext', '');
+            }
+        }
+
+        // Helpers
+        function toggleText(oldId, newId) {
+            document.getElementById(oldId).style.opacity = '0';
+            document.getElementById(newId).style.opacity = '1';
+        }
+
+        function resetTextPair(oldId, newId) {
+            document.getElementById(oldId).style.opacity = '1';
+            document.getElementById(newId).style.opacity = '0';
+        }
+
+        function fillBox(id, color) {
+            const el = document.getElementById(id);
+            if (color) {
+                el.style.fill = color;
+                el.style.stroke = color;
+            } else {
+                el.style.fill = '';
+                el.style.stroke = '';
+            }
+        }
+
+        function next() {
+            if (currentStep < maxSteps) {
+                currentStep++;
+                updateView();
+            }
+        }
+
+        function prev() {
+            if (currentStep > 0) {
+                currentStep--;
+                updateView();
+            }
+        }
+
+        // Key Navigation
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Enter') next();
+            if (e.key === 'ArrowLeft') prev();
+        });
+
+        // Initial trigger
+        window.onload = () => {
+            updateView();
+            reportState();
+        };
+
+        // Message communication for unified deck
+        window.addEventListener('message', (e) => {
+            if (e.data === 'next') next();
+            if (e.data === 'prev') prev();
+        });
+
+        function reportState() {
+            window.parent.postMessage({
+                type: 'slideState',
+                currentStep: currentStep,
+                totalSteps: maxSteps
+            }, '*');
+        }
+
+        // Update view to also report state
+        const originalUpdateView = updateView;
+        updateView = function () {
+            originalUpdateView();
+            reportState();
+        };
+    </script>
+</body>
+
+</html>
