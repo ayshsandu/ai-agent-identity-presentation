@@ -33,19 +33,24 @@
             display: block;
         }
 
-        /* Navigation Bar */
+        /* Navigation Bar - Bottom Right */
         .nav-bar {
             position: fixed;
             bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
+            right: 20px;
+            /* Anchored to right */
+            left: auto;
+            /* Remove center alignment */
+            transform: none;
+            /* Remove center transform */
             background: var(--nav-bg);
             backdrop-filter: blur(10px);
             padding: 10px 20px;
             border-radius: 30px;
             display: flex;
             align-items: center;
-            gap: 20px;
+            gap: 15px;
+            /* Spacing between elements */
             border: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
             z-index: 1000;
@@ -54,7 +59,8 @@
 
         .nav-bar.hidden {
             opacity: 0;
-            transform: translate(-50%, 20px);
+            transform: translateY(20px);
+            /* Move down to hide */
             pointer-events: none;
         }
 
@@ -84,12 +90,20 @@
             fill: currentColor;
         }
 
+        /* Slide Info - Inside Nav Bar */
         .slide-info {
             font-size: 14px;
             font-weight: 600;
             min-width: 80px;
             text-align: center;
             color: var(--text-dim);
+            /* Resetting previous standalone styles */
+            position: static;
+            background: none;
+            border: none;
+            box-shadow: none;
+            backdrop-filter: none;
+            padding: 0;
         }
 
         .slide-info span {
@@ -143,15 +157,18 @@
 
     <iframe id="presentation-frame" src="01.html"></iframe>
 
+    <!-- Combined Nav Bar at Bottom Right -->
     <div class="nav-bar" id="nav-bar">
         <button class="nav-btn" id="prev-btn" title="Previous (Left Arrow)">
             <svg viewBox="0 0 24 24">
                 <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" />
             </svg>
         </button>
+
         <div class="slide-info">
             Slide <span id="current-slide-num">1</span> / <span id="total-slides-num">11</span>
         </div>
+
         <button class="nav-btn" id="next-btn" title="Next (Right Arrow / Space)">
             <svg viewBox="0 0 24 24">
                 <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" />
