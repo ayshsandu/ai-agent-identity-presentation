@@ -91,19 +91,41 @@
             color: #ffffff;
         }
 
+        /* Subtitle Wrapper to handle overlapping text transitions */
+        .subtitle-wrapper {
+            position: relative;
+            height: 60px;
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            overflow: hidden;
+        }
+
         .subtitle {
             font-size: 42px;
             font-weight: 300;
             color: #b3b3b3;
-            margin-top: 20px;
+            margin: 0;
+            position: absolute;
+            transition: all 0.8s cubic-bezier(0.25, 1, 0.5, 1);
             opacity: 0;
-            transform: translateY(20px);
-            transition: all 0.8s ease-out 0.3s;
+            transform: translateY(40px);
         }
 
-        .subtitle.visible {
+        /* Initial State: A Piece of Software */
+        .subtitle.state-visible {
             opacity: 1;
             transform: translateY(0);
+        }
+
+        .subtitle.state-exit {
+            opacity: 0;
+            transform: translateY(-40px);
+        }
+
+        .subtitle-highlight {
+            color: #ffffff;
+            font-weight: 400;
         }
     </style>
 </head>
@@ -116,7 +138,13 @@
         <h1 class="title" id="title">
             <span class="title-orange">Trust</span><span class="title-white">?</span>
         </h1>
-        <p class="subtitle" id="subtitle">Autonomous Intelligent Systems</p>
+
+        <div class="subtitle-wrapper">
+            <!-- Text 1 -->
+            <p class="subtitle" id="subtitle-1">A Piece of Software</p>
+            <!-- Text 2 -->
+            <p class="subtitle subtitle-highlight" id="subtitle-2">AI Agents</p>
+        </div>
     </div>
 
     <script>
@@ -129,19 +157,23 @@
         img.src = remoteBg;
 
         // Animation steps
+        // 0: BG
+        // 1: Title
+        // 2: "A Piece of Software"
+        // 3: "AI Agents"
         let currentStep = 0;
-        const maxSteps = 2;
+        const maxSteps = 3;
 
         const background = document.getElementById('background');
         const overlay = document.getElementById('overlay');
         const textContainer = document.getElementById('text-container');
         const title = document.getElementById('title');
-        const subtitle = document.getElementById('subtitle');
+
+        const sub1 = document.getElementById('subtitle-1');
+        const sub2 = document.getElementById('subtitle-2');
 
         function updateView() {
-            // Step 0: Background visible (initial state)
-
-            // Step 1: Fade out background, show text container, fade in title
+            // Step 1 logic: Background fade out, Title fade in
             if (currentStep >= 1) {
                 background.classList.add('fade-out');
                 overlay.classList.add('fade-out');
@@ -154,11 +186,28 @@
                 title.classList.remove('visible');
             }
 
-            // Step 2: Fade in subtitle
-            if (currentStep >= 2) {
-                subtitle.classList.add('visible');
-            } else {
-                subtitle.classList.remove('visible');
+            // Step 2 logic: Show "A Piece of Software"
+            if (currentStep === 2) {
+                sub1.classList.add('state-visible');
+                sub1.classList.remove('state-exit');
+
+                // Ensure sub2 is hidden
+                sub2.classList.remove('state-visible');
+            }
+            // Step 3 logic: Transition to "AI Agents"
+            else if (currentStep >= 3) {
+                // Sub 1 exits up
+                sub1.classList.remove('state-visible');
+                sub1.classList.add('state-exit');
+
+                // Sub 2 enters from bottom
+                sub2.classList.add('state-visible');
+            }
+            // Reset (Step 0 or 1)
+            else {
+                sub1.classList.remove('state-visible');
+                sub1.classList.remove('state-exit');
+                sub2.classList.remove('state-visible');
             }
         }
 
